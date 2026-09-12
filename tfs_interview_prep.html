@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toyota Financial Services - Intensive Backend Prep</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: rgba(30, 41, 59, 0.75);
+            --primary: #3b82f6;
+            --secondary: #e81c24; /* Toyota Red */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .bg-orbs {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; z-index: -1; pointer-events: none;
+        }
+        .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.5; animation: float 20s infinite ease-in-out alternate; }
+        .orb-1 { background: rgba(59, 130, 246, 0.4); width: 50vw; height: 50vw; top: -20%; left: -10%; }
+        .orb-2 { background: rgba(232, 28, 36, 0.25); width: 40vw; height: 40vw; bottom: -10%; right: -10%; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10%, 15%) scale(1.1); } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+        header { text-align: center; margin-bottom: 50px; }
+        header h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        header h1 span { background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { font-size: 1.2rem; color: var(--text-muted); }
+
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        .tab-btn {
+            background: var(--surface); border: 1px solid var(--glass-border); color: var(--text-muted);
+            padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .tab-btn.active { color: #fff; background: linear-gradient(135deg, var(--primary), #2563eb); border-color: transparent; }
+
+        .tab-content {
+            display: none; background: var(--surface); backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px;
+        }
+        .tab-content.active { display: block; }
+        .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+        
+        .qa-accordion { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+        .qa-item {
+            background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden;
+        }
+        .qa-item summary {
+            padding: 18px 20px; cursor: pointer; font-weight: 600; font-size: 1.1rem; list-style: none;
+            display: flex; justify-content: space-between; align-items: center; user-select: none;
+            transition: background 0.2s;
+        }
+        .qa-item summary::-webkit-details-marker { display: none; }
+        .qa-item summary:hover { background: rgba(255,255,255,0.05); }
+        .qa-item[open] summary { border-bottom: 1px solid var(--glass-border); background: rgba(59, 130, 246, 0.1); }
+        
+        .answer-content { padding: 20px; color: #cbd5e1; font-size: 1rem; line-height: 1.7; }
+        .study-material {
+            margin-top: 15px; padding: 12px 15px; background: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid var(--primary); border-radius: 4px; font-size: 0.95rem; color: #94a3b8;
+        }
+        .study-material strong { color: #fff; }
+
+        .priority { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+        .priority.high { background: rgba(232, 28, 36, 0.2); color: #fca5a5; border: 1px solid rgba(232,28,36,0.3); }
+        .priority.med { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234,179,8,0.3); }
+        .priority.low { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+
+        code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; color: #e2e8f0; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+    
+    <div class="container">
+        <header>
+            <h1>Backend Engineering <span>Intensive</span></h1>
+            <p>125 Priority-Ranked Questions for Toyota Financial Services</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('java')">OOP & Java (25)</button>
+            <button class="tab-btn" onclick="openTab('spring')">Spring Boot (25)</button>
+            <button class="tab-btn" onclick="openTab('microservices')">Microservices (25)</button>
+            <button class="tab-btn" onclick="openTab('aws')">AWS Cloud (25)</button>
+            <button class="tab-btn" onclick="openTab('tfs')">TFS & DSA (25)</button>
+        </div>
+
+        <!-- ==================== TAB 1: JAVA ==================== -->
+        <div class="tab-content active" id="java">
+            <h2 class="section-title">OOP & Core Java</h2>
+            <p style="color: var(--text-muted)">The foundation of everything. Master Collections, Concurrency, and OOP.</p>
+            
+            <div class="qa-accordion">
+                <!-- High Priority (1-5) -->
+                <details class="qa-item"><summary>1. What are the 4 Pillars of OOP? <span class="priority high">High</span></summary><div class="answer-content">Encapsulation (hiding data), Abstraction (hiding complexity), Inheritance (code reuse), Polymorphism (many forms via overloading/overriding).<div class="study-material"><strong>Study Material:</strong> Oracle Java Tutorials - Object-Oriented Programming Concepts.</div></div></details>
+                <details class="qa-item"><summary>2. Difference between Abstract Class and Interface? <span class="priority high">High</span></summary><div class="answer-content">Interface: 100% abstract (until Java 8 default methods), supports multiple inheritance, variables are `public static final`. Abstract Class: Can have state (instance variables), constructors, and partial implementation, but only single inheritance.<div class="study-material"><strong>Study Material:</strong> Baeldung: Interface vs Abstract Class in Java.</div></div></details>
+                <details class="qa-item"><summary>3. How does HashMap work internally? <span class="priority high">High</span></summary><div class="answer-content">It stores key-value pairs in an array of Nodes. It calculates `hashcode()` of the key to find the array index (bucket). If a collision occurs, it stores the node in a Linked List (or a Red-Black tree if list size > 8).<div class="study-material"><strong>Study Material:</strong> GeeksforGeeks - Internal Working of HashMap in Java.</div></div></details>
+                <details class="qa-item"><summary>4. HashMap vs ConcurrentHashMap? <span class="priority high">High</span></summary><div class="answer-content">HashMap is not thread-safe. ConcurrentHashMap is thread-safe and uses "lock striping" (Segment locking) or Node-level locking (Java 8+) so multiple threads can read/write simultaneously without blocking the entire map.<div class="study-material"><strong>Study Material:</strong> Baeldung: ConcurrentHashMap in Java.</div></div></details>
+                <details class="qa-item"><summary>5. String vs StringBuilder vs StringBuffer? <span class="priority high">High</span></summary><div class="answer-content">String is immutable; every modification creates a new object. StringBuilder is mutable and fast but not thread-safe. StringBuffer is mutable and thread-safe (synchronized).<div class="study-material"><strong>Study Material:</strong> Java API Docs: java.lang.String.</div></div></details>
+                
+                <!-- Medium Priority (6-15) -->
+                <details class="qa-item"><summary>6. Contract between equals() and hashCode()? <span class="priority med">Medium</span></summary><div class="answer-content">If two objects are equal according to `equals()`, they MUST have the same `hashCode()`. However, two objects with the same `hashCode()` do not necessarily have to be equal (collision).<div class="study-material"><strong>Study Material:</strong> Effective Java by Joshua Bloch - Chapter 3.</div></div></details>
+                <details class="qa-item"><summary>7. ArrayList vs LinkedList? <span class="priority med">Medium</span></summary><div class="answer-content">ArrayList uses a dynamic array (fast random access O(1), slow insertion O(N)). LinkedList uses a doubly linked list (slow random access O(N), fast insertion/deletion O(1) if node is known).<div class="study-material"><strong>Study Material:</strong> Big-O Cheat Sheet for Java Collections.</div></div></details>
+                <details class="qa-item"><summary>8. Overloading vs Overriding? <span class="priority med">Medium</span></summary><div class="answer-content">Overloading (Compile-time Polymorphism): Same method name, different parameters in the same class. Overriding (Run-time Polymorphism): Same method signature, but in a subclass to change behavior.<div class="study-material"><strong>Study Material:</strong> Java Docs: Polymorphism.</div></div></details>
+                <details class="qa-item"><summary>9. What is a Memory Leak in Java? <span class="priority med">Medium</span></summary><div class="answer-content">When objects are no longer used by the application but the Garbage Collector cannot remove them because they are still referenced (e.g., storing data in a static List and never clearing it).<div class="study-material"><strong>Study Material:</strong> Baeldung: Understanding Memory Leaks in Java.</div></div></details>
+                <details class="qa-item"><summary>10. Comparable vs Comparator? <span class="priority med">Medium</span></summary><div class="answer-content">Comparable: implemented by the class itself to define its *natural* sorting order (`compareTo`). Comparator: a separate class used to define *custom* sorting logic (`compare`).<div class="study-material"><strong>Study Material:</strong> GeeksforGeeks: Comparable vs Comparator.</div></div></details>
+                <details class="qa-item"><summary>11. Fail-Fast vs Fail-Safe Iterators? <span class="priority med">Medium</span></summary><div class="answer-content">Fail-fast (e.g., ArrayList) throws `ConcurrentModificationException` if modified while iterating. Fail-safe (e.g., CopyOnWriteArrayList) operates on a clone, so it doesn't throw exceptions.<div class="study-material"><strong>Study Material:</strong> Java Collections Framework documentation.</div></div></details>
+                <details class="qa-item"><summary>12. Set vs List? <span class="priority med">Medium</span></summary><div class="answer-content">List allows duplicates and maintains insertion order. Set does not allow duplicates and does not guarantee order (unless using LinkedHashSet/TreeSet).<div class="study-material"><strong>Study Material:</strong> Java Collection Hierarchy diagrams.</div></div></details>
+                <details class="qa-item"><summary>13. What is the `volatile` keyword? <span class="priority med">Medium</span></summary><div class="answer-content">It tells the JVM not to cache the variable locally in a thread. Reads and writes go straight to main memory, ensuring all threads see the most up-to-date value.<div class="study-material"><strong>Study Material:</strong> Java Concurrency in Practice (Book).</div></div></details>
+                <details class="qa-item"><summary>14. How does Garbage Collection work? <span class="priority med">Medium</span></summary><div class="answer-content">A background daemon thread that reclaims memory from unreferenced objects. It uses "Mark and Sweep" (marks reachable objects, deletes the rest) and Generational spaces (Young, Old, Metaspace).<div class="study-material"><strong>Study Material:</strong> Oracle: Java Garbage Collection Basics.</div></div></details>
+                <details class="qa-item"><summary>15. Exception vs Error? <span class="priority med">Medium</span></summary><div class="answer-content">Both extend `Throwable`. Exceptions are conditions a program *can* catch and recover from (e.g., FileNotFound). Errors are severe JVM failures the app *cannot* recover from (e.g., OutOfMemoryError).<div class="study-material"><strong>Study Material:</strong> Java Exception Hierarchy.</div></div></details>
+                
+                <!-- Low Priority (16-25) -->
+                <details class="qa-item"><summary>16. Final vs Finally vs Finalize? <span class="priority low">Low</span></summary><div class="answer-content">Final: keyword to make constants, prevent inheritance/overriding. Finally: try-catch block that always executes. Finalize: deprecated method called by GC before destroying an object.</div></details>
+                <details class="qa-item"><summary>17. What is a Singleton? How to make it thread-safe? <span class="priority low">Low</span></summary><div class="answer-content">A class with only one instance. Make it thread-safe using Double-Checked Locking with a `volatile` instance variable, or use an Enum.</div></details>
+                <details class="qa-item"><summary>18. What are Java Streams? <span class="priority low">Low</span></summary><div class="answer-content">Introduced in Java 8, a declarative pipeline to process collections of objects (filter, map, reduce) without mutating the original collection.</div></details>
+                <details class="qa-item"><summary>19. What is `Optional`? <span class="priority low">Low</span></summary><div class="answer-content">A container object that may or may not contain a non-null value, used to prevent `NullPointerExceptions` elegantly.</div></details>
+                <details class="qa-item"><summary>20. Checked vs Unchecked Exceptions? <span class="priority low">Low</span></summary><div class="answer-content">Checked: checked at compile time (must be caught or declared). Unchecked: extend RuntimeException, checked at runtime (e.g., NullPointerException).</div></details>
+                <details class="qa-item"><summary>21. What is a ThreadPool? <span class="priority low">Low</span></summary><div class="answer-content">A group of pre-instantiated, reusable threads used to execute tasks. Prevents the overhead of creating/destroying threads constantly.</div></details>
+                <details class="qa-item"><summary>22. What does `synchronized` do? <span class="priority low">Low</span></summary><div class="answer-content">Locks a method or block of code so only one thread can execute it at a time, preventing race conditions.</div></details>
+                <details class="qa-item"><summary>23. TreeMap vs HashMap? <span class="priority low">Low</span></summary><div class="answer-content">TreeMap stores keys in sorted (ascending) order using a Red-Black tree. HashMap is unordered and uses hashing.</div></details>
+                <details class="qa-item"><summary>24. Default methods in Interfaces? <span class="priority low">Low</span></summary><div class="answer-content">Added in Java 8. Allows interfaces to have methods with implementation bodies to add new functionality without breaking existing classes.</div></details>
+                <details class="qa-item"><summary>25. What is CompletableFuture? <span class="priority low">Low</span></summary><div class="answer-content">An extension of Future that allows you to chain async operations, handle errors, and combine multiple async results non-blockingly.</div></details>
+
+                <!-- Senior/Advanced Level (26-30) -->
+                <details class="qa-item"><summary>26. Virtual Threads vs Traditional Threads (Java 21+)? <span class="priority high">Senior</span></summary><div class="answer-content">Traditional threads map 1:1 to OS threads (heavy, max a few thousand). Virtual threads are lightweight, mapped many-to-one to OS threads by the JVM. They allow handling millions of concurrent blocking I/O requests without crashing.<div class="study-material"><strong>Study Material:</strong> JEP 444: Virtual Threads.</div></div></details>
+                <details class="qa-item"><summary>27. How does ReentrantLock differ from synchronized? <span class="priority high">Senior</span></summary><div class="answer-content">`synchronized` is intrinsic and blocks indefinitely. `ReentrantLock` offers fairness policies (longest waiting thread gets lock first), ability to interrupt waiting threads, and `tryLock()` (don't block if lock is unavailable).<div class="study-material"><strong>Study Material:</strong> java.util.concurrent.locks.ReentrantLock.</div></div></details>
+                <details class="qa-item"><summary>28. Diagnosing Memory Leaks in Production? <span class="priority high">Senior</span></summary><div class="answer-content">Trigger a heap dump using `jmap` (or Spring Boot Actuator). Analyze the `.hprof` file using Eclipse MAT or VisualVM to find the "GCRoot" that is preventing objects from being garbage collected (often static maps or unclosed resources).</div></details>
+                <details class="qa-item"><summary>29. G1GC vs ZGC vs Shenandoah? <span class="priority high">Senior</span></summary><div class="answer-content">G1GC balances throughput and latency (default). ZGC and Shenandoah are ultra-low latency collectors designed for massive heaps (terabytes) where pause times are guaranteed to be under 1-10ms, at a slight cost to overall throughput.</div></details>
+                <details class="qa-item"><summary>30. Diagnosing Deadlocks? <span class="priority high">Senior</span></summary><div class="answer-content">Use `jstack` or Java Flight Recorder (JFR) to take a thread dump. Look for "Found one Java-level deadlock" in the dump. Prevent deadlocks by always acquiring locks in a strict, globally consistent order.</div></details>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: SPRING BOOT ==================== -->
+        <div class="tab-content" id="spring">
+            <h2 class="section-title">Spring Boot & Ecosystem</h2>
+            <p style="color: var(--text-muted)">The dominant backend framework. Focus heavily on IoC, DI, and REST paradigms.</p>
+            
+            <div class="qa-accordion">
+                <!-- High Priority (1-5) -->
+                <details class="qa-item"><summary>1. What is the "Inversion of Control" referenced to in the Spring framework? <span class="priority high">High</span></summary><div class="answer-content">
+                    Inversion of Control (IoC) is a design principle where you hand over control of object creation to the framework. In Spring, IoC is implemented using <strong>Dependency Injection (DI)</strong>.<br><br>
+                    <strong>The Restaurant Analogy:</strong><br>
+                    In traditional programming (you are in control), if a Receptionist (Controller) needs a Chef (Service), the Receptionist has to hire the Chef themselves using the <code>new</code> keyword. This is tightly coupled.<br><br>
+                    With IoC (the framework is in control), you tell the Restaurant Manager (Spring) "I need a Chef." Spring automatically creates the Chef, wires it into your Receptionist class, and manages its entire lifecycle. You gave up control to the framework!<br><br>
+                    <strong>Why it matters:</strong> Loose coupling, makes unit testing incredibly easy (you can swap out a real database for a fake one), and memory efficiency (Spring creates a single instance of the class to share).
+                    <div class="study-material"><strong>Study Material:</strong> Spring Framework Reference Documentation (Core Technologies).</div>
+                </div></details>
+                <details class="qa-item"><summary>2. Explain @SpringBootApplication <span class="priority high">High</span></summary><div class="answer-content">It is a combination of 3 annotations: `@Configuration` (marks class as a source of bean definitions), `@EnableAutoConfiguration` (tells Spring to auto-configure based on classpath), and `@ComponentScan` (looks for components in current and sub-packages).<div class="study-material"><strong>Study Material:</strong> Spring Boot Docs: Using @SpringBootApplication.</div></div></details>
+                <details class="qa-item"><summary>2b. What happens exactly when we start a Spring Boot application? <span class="priority high">High</span></summary><div class="answer-content">
+                    When you run <code>SpringApplication.run()</code> in your main method, a highly orchestrated sequence occurs:<br><br>
+                    <strong>1. Setup & Context:</strong> Spring detects the environment (e.g., a Web Application) and creates the <em>ApplicationContext</em> (the IoC container).<br>
+                    <strong>2. Component Scanning:</strong> It scans your project's folders for stereotype annotations (<code>@RestController</code>, <code>@Service</code>) and creates Beans for them.<br>
+                    <strong>3. Auto-Configuration:</strong> Based on the jars in your classpath (like H2 or Tomcat), Spring's auto-configuration magic wires up default configurations without you writing XML or boilerplate.<br>
+                    <strong>4. Embedded Server:</strong> It spins up an embedded web server (usually Apache Tomcat on port 8080).<br>
+                    <strong>5. Ready:</strong> The ApplicationContext is refreshed, and the server begins listening for incoming HTTP requests.
+                </div></details>
+                <details class="qa-item"><summary>2c. When we deploy a Spring Boot app to AWS, does the same Tomcat server run in the cloud? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>Yes, exactly!</strong><br><br>
+                    When you build a Spring Boot application (using Maven or Gradle), it creates what is called a "Fat JAR" (or executable JAR). This single <code>.jar</code> file contains all your code <strong>PLUS</strong> the entire embedded Tomcat server bundled directly inside of it.<br><br>
+                    When you deploy this to a cloud provider like AWS (whether on a raw EC2 Linux server, Elastic Beanstalk, or inside a Docker container on ECS/EKS), you are literally just copying that exact same <code>.jar</code> file to the cloud computer and running the command <code>java -jar my-application.jar</code>.<br><br>
+                    The exact same embedded Tomcat server spins up in AWS, just like it did on your local machine, but instead of listening to <code>localhost</code>, it now listens to real traffic from the internet!
+                </div></details>
+                <details class="qa-item"><summary>3. @Controller vs @RestController? <span class="priority high">High</span></summary><div class="answer-content">`@Controller` returns a View (HTML page). `@RestController` combines `@Controller` and `@ResponseBody`, meaning it directly returns data (JSON/XML) in the HTTP response body.<div class="study-material"><strong>Study Material:</strong> Baeldung: @Controller vs @RestController.</div></div></details>
+                <details class="qa-item"><summary>4. How does @Transactional work? <span class="priority high">High</span></summary><div class="answer-content">It wraps a method in a database transaction using AOP (Aspect-Oriented Programming). If the method completes successfully, it commits. If a `RuntimeException` is thrown, it rolls back to maintain ACID properties.<div class="study-material"><strong>Study Material:</strong> Spring Docs: Transaction Management.</div></div></details>
+                <details class="qa-item"><summary>5. Bean Scopes in Spring? <span class="priority high">High</span></summary><div class="answer-content">Singleton (default, 1 instance per app), Prototype (new instance every time), Request (1 per HTTP request), Session (1 per user session), Application (1 per ServletContext).<div class="study-material"><strong>Study Material:</strong> GeeksforGeeks: Bean Scopes in Spring.</div></div></details>
+
+                <!-- Medium Priority (6-15) -->
+                <details class="qa-item"><summary>6. Why did we not use @Component and @Autowired annotations anywhere in our code? <span class="priority high">High</span></summary><div class="answer-content">
+                    We actually ARE using them, but we are using the modern, cleaner versions! <br><br>
+                    <strong>1. Why no @Component?</strong><br>
+                    Instead of generic `@Component`, we used <em>Stereotype Annotations</em> like `@RestController` and `@Service`. If you look at their source code, they have `@Component` inside them. We use the specific names because it makes the code easier for humans to read, but Spring treats them all as components under the hood.<br><br>
+                    <strong>2. Why no @Autowired?</strong><br>
+                    Instead of <em>Field Injection</em> using `@Autowired`, we used <em>Constructor Injection</em> via Lombok's `@RequiredArgsConstructor`. Since Spring 4.3, if a class has only one constructor, Spring automatically injects the dependencies without needing `@Autowired`. Constructor Injection is strongly recommended by the Spring team because it ensures variables are `final` (immutable) and makes unit testing significantly easier.
+                    <div class="study-material"><strong>Study Material:</strong> Spring Docs: DI preferences and Stereotype Annotations.</div>
+                </div></details>
+                <details class="qa-item"><summary>7. What do the @AllArgsConstructor and @NoArgsConstructor annotations do? <span class="priority med">Medium</span></summary><div class="answer-content">
+                    These are <strong>Lombok</strong> annotations used to automatically generate constructors for your classes, saving you from writing boilerplate code.<br><br>
+                    <strong>@NoArgsConstructor:</strong> Generates a default constructor with no parameters (e.g., <code>public MyClass() {}</code>). This is heavily required by frameworks like Hibernate/JPA, which need a blank constructor to create instances of your Entities from the database before populating their fields.<br><br>
+                    <strong>@AllArgsConstructor:</strong> Generates a constructor that requires <em>every</em> field in the class as a parameter. It's very useful for creating DTOs (Data Transfer Objects) quickly when you need to instantiate them with all their data at once.
+                    <div class="study-material"><strong>Study Material:</strong> Project Lombok Features.</div>
+                </div></details>
+                <details class="qa-item"><summary>7b. @RequestParam vs @PathVariable? <span class="priority med">Medium</span></summary><div class="answer-content">`@PathVariable` extracts values from the URI path (e.g., `/users/{id}`). `@RequestParam` extracts values from query strings (e.g., `/users?name=john`).<div class="study-material"><strong>Study Material:</strong> Baeldung: RequestParam vs PathVariable.</div></div></details>
+                <details class="qa-item"><summary>7c. Why did we create a Request DTO for Payment Service, but not for Loan Service? <span class="priority med">Medium</span></summary><div class="answer-content">
+                    This comes down to the difference between HTTP methods and how data is transmitted.<br><br>
+                    In our <strong>Payment Service</strong>, we have a <code>POST</code> endpoint to create a new payment. <code>POST</code> requests send data inside the <strong>Request Body</strong> (usually as a JSON payload). We needed a <code>PaymentRequest</code> DTO to tell Spring how to map that incoming JSON string into a Java object.<br><br>
+                    In our <strong>Loan Service</strong>, we only created a <code>GET</code> endpoint (<code>/api/v1/loans/{loanAccountNumber}</code>). <code>GET</code> requests do not have a request body! The client simply passes the data they are looking for directly in the URL path. Since there is no JSON body to deserialize, we just use a simple <code>@PathVariable String loanAccountNumber</code> instead of creating an entire Request DTO class.
+                </div></details>
+                <details class="qa-item"><summary>8. How to handle Global Exceptions? <span class="priority med">Medium</span></summary><div class="answer-content">Create a class annotated with `@ControllerAdvice` or `@RestControllerAdvice` and define methods with `@ExceptionHandler` to intercept specific exceptions and return unified error JSONs.<div class="study-material"><strong>Study Material:</strong> Spring Boot Error Handling Guide.</div></div></details>
+                <details class="qa-item"><summary>9. What is Spring Data JPA? <span class="priority med">Medium</span></summary><div class="answer-content">An abstraction layer over JPA/Hibernate. It provides standard implementations (like `JpaRepository`) so you can do CRUD operations by just defining an interface without writing SQL.<div class="study-material"><strong>Study Material:</strong> Spring Data JPA Reference.</div></div></details>
+                <details class="qa-item"><summary>10. What is Spring Boot Actuator? <span class="priority med">Medium</span></summary><div class="answer-content">It exposes production-ready endpoints (like `/health`, `/metrics`, `/env`) to monitor and manage the application's health, memory, and traffic.<div class="study-material"><strong>Study Material:</strong> Baeldung: Spring Boot Actuator.</div></div></details>
+                <details class="qa-item"><summary>11. application.properties vs application.yml? <span class="priority med">Medium</span></summary><div class="answer-content">Both serve the same configuration purpose. YAML is hierarchical and easier to read for complex, nested configurations, while properties is flat key-value pairs.<div class="study-material"><strong>Study Material:</strong> YAML vs Properties in Spring.</div></div></details>
+                <details class="qa-item"><summary>12. What are Spring Profiles? <span class="priority med">Medium</span></summary><div class="answer-content">Profiles allow you to segregate application configuration (e.g., database URLs) for different environments like `dev`, `qa`, and `prod`. Activated via `spring.profiles.active`.<div class="study-material"><strong>Study Material:</strong> Spring Docs: Profiles.</div></div></details>
+                <details class="qa-item"><summary>13. Filter vs Interceptor? <span class="priority med">Medium</span></summary><div class="answer-content">Filters are part of the Java Servlet spec and intercept requests before they hit the Spring framework. Interceptors are Spring-specific and intercept requests right before the Controller.<div class="study-material"><strong>Study Material:</strong> Baeldung: Filter vs HandlerInterceptor.</div></div></details>
+                <details class="qa-item"><summary>14. What is CORS? How to fix it? <span class="priority med">Medium</span></summary><div class="answer-content">Cross-Origin Resource Sharing. Browsers block requests from one domain (e.g., frontend.com) to another (api.com). Fix in Spring by adding `@CrossOrigin` to controllers or configuring a WebMvcConfigurer.<div class="study-material"><strong>Study Material:</strong> MDN Web Docs: CORS.</div></div></details>
+                <details class="qa-item"><summary>15. What is the Spring IoC Container? <span class="priority med">Medium</span></summary><div class="answer-content">The core of Spring framework (`ApplicationContext`). It creates objects, wires them together, configures them, and manages their complete lifecycle.<div class="study-material"><strong>Study Material:</strong> Spring Core documentation.</div></div></details>
+
+                <!-- Low Priority (16-25) -->
+                <details class="qa-item"><summary>16. Difference between Spring and Spring Boot? <span class="priority low">Low</span></summary><div class="answer-content">Spring is a massive framework requiring heavy manual configuration. Spring Boot is an extension that provides "opinionated" defaults, embedded servers, and auto-configuration.</div></details>
+                <details class="qa-item"><summary>17. What is @Value used for? <span class="priority low">Low</span></summary><div class="answer-content">Used to inject values directly from `application.properties` into a class variable.</div></details>
+                <details class="qa-item"><summary>18. Explain @Qualifier. <span class="priority low">Low</span></summary><div class="answer-content">When you have multiple implementations of the same interface, `@Autowired` gets confused. `@Qualifier("beanName")` tells Spring exactly which one to inject.</div></details>
+                <details class="qa-item"><summary>19. What is Spring Security? <span class="priority low">Low</span></summary><div class="answer-content">A framework providing authentication (who are you?) and authorization (what can you do?) via interceptors. Supports JWT, OAuth2, and basic auth.</div></details>
+                <details class="qa-item"><summary>20. What is a DTO? <span class="priority low">Low</span></summary><div class="answer-content">Data Transfer Object. An object used to encapsulate data and send it over the network, decoupling the API layer from the database Entity layer.</div></details>
+                <details class="qa-item"><summary>21. How to schedule tasks in Spring? <span class="priority low">Low</span></summary><div class="answer-content">Enable with `@EnableScheduling` and annotate a method with `@Scheduled(cron = "...")`.</div></details>
+                <details class="qa-item"><summary>22. What is JPA vs Hibernate? <span class="priority low">Low</span></summary><div class="answer-content">JPA is the specification/interface. Hibernate is the actual implementation that executes the ORM logic.</div></details>
+                <details class="qa-item"><summary>23. @Primary vs @Qualifier? <span class="priority low">Low</span></summary><div class="answer-content">`@Primary` designates a default bean when multiple exist. `@Qualifier` overrides it by explicitly naming the required bean.</div></details>
+                <details class="qa-item"><summary>24. N+1 Select Problem in Hibernate? <span class="priority low">Low</span></summary><div class="answer-content">When loading a list of entities (1 query) causes lazy loading of their relationships for each entity (N queries). Solved using `JOIN FETCH`.</div></details>
+                <details class="qa-item"><summary>25. What is a REST API? <span class="priority low">Low</span></summary><div class="answer-content">Representational State Transfer. An architectural style using HTTP methods (GET, POST, PUT, DELETE) to manipulate stateless resources represented via URLs.</div></details>
+                <details class="qa-item"><summary>25b. How and where is Dependency Injection happening in our specific project? <span class="priority med">Medium</span></summary><div class="answer-content">
+                    In our code, Dependency Injection (DI) is happening everywhere via <strong>Constructor Injection</strong>, completely powered by Lombok's <code>@RequiredArgsConstructor</code>.<br><br>
+                    <strong>Here are the exact places it is happening:</strong><br>
+                    1. <strong>PaymentController:</strong> We inject the <code>PaymentService</code> so the Controller can delegate business logic.<br>
+                    2. <strong>PaymentService:</strong> We inject the <code>PaymentRepository</code> (to save data) and the <code>KafkaTemplate</code> (to send messages).<br>
+                    3. <strong>LoanController:</strong> We inject the <code>LoanService</code>.<br>
+                    4. <strong>LoanService:</strong> We inject the <code>LoanRepository</code>.<br>
+                    5. <strong>PaymentEventListener:</strong> We inject the <code>LoanRepository</code> so it can update balances.<br><br>
+                    <strong>How it works without @Autowired:</strong> By putting <code>private final</code> on these variables and adding <code>@RequiredArgsConstructor</code> at the class level, Lombok generates a constructor with these variables. Since Spring 4.3, if a Spring component has only one constructor, Spring automatically injects the dependencies into it! No <code>@Autowired</code> needed.
+                </div></details>
+
+                <details class="qa-item"><summary>25c. Exactly how is the Global Exception Handler working in our project? <span class="priority high">High</span></summary><div class="answer-content">
+                    When a Java exception occurs (like a <code>PaymentNotFoundException</code>), Spring's default behavior is to crash the request and return a massive, ugly HTML stack trace to the user. This is terrible for security and breaks frontend clients expecting JSON.<br><br>
+                    <strong>Here is how we fixed it:</strong><br>
+                    1. <strong>The Net (@RestControllerAdvice):</strong> We put this annotation on our <code>GlobalExceptionHandler</code> class. This acts as a giant invisible net thrown over <em>all</em> of our Controllers.<br>
+                    2. <strong>The Catchers (@ExceptionHandler):</strong> Inside the class, we wrote methods annotated with <code>@ExceptionHandler(PaymentNotFoundException.class)</code>. This tells Spring: "If you catch this specific exception anywhere in the app, STOP, and run this method instead."<br>
+                    3. <strong>The Clean Output:</strong> Inside that method, we catch the exception, extract its error message, and pack it into our custom <code>ErrorResponse</code> DTO. We return this DTO with a clean 404 HTTP status. The client receives a beautiful, predictable JSON error message instead of a terrifying stack trace.
+                </div></details>
+                <details class="qa-item"><summary>25c-2. How is the GlobalExceptionHandler being automatically called, when we never explicitly call it in our code? <span class="priority high">High</span></summary><div class="answer-content">
+                    This is thanks to the core engine of Spring MVC, called the <strong>DispatcherServlet</strong>, combined with a concept called <strong>AOP (Aspect-Oriented Programming)</strong>.<br><br>
+                    <strong>Here is the step-by-step mechanism:</strong><br>
+                    1. When you throw a <code>PaymentNotFoundException</code> in the Service, it bubbles up to the Controller.<br>
+                    2. The Controller doesn't know how to handle it, so it throws the error back to the <strong>DispatcherServlet</strong> (the Front Desk Manager of Spring).<br>
+                    3. Before crashing, the DispatcherServlet checks its internal list of "Exception Resolvers".<br>
+                    4. At startup, Spring scanned our code, found the <code>@RestControllerAdvice</code> annotation, and registered our <code>GlobalExceptionHandler</code> as an official Exception Resolver.<br>
+                    5. The DispatcherServlet sees that our class has an <code>@ExceptionHandler(PaymentNotFoundException.class)</code> method. It uses Java Reflection to automatically inject the exception into our method, run our code, and take the resulting <code>ErrorResponse</code> to send to the client. <br><br>
+                    We never explicitly call it because it acts as an <strong>Interceptor</strong> built into the very lifecycle of a Spring request!
+                </div></details>
+                <details class="qa-item"><summary>25d. Explain the complete flow of a Spring Boot request, from Controller to Exception to Response DTO. <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>Happy Path:</strong><br>
+                    1. Client sends a request (JSON/URL).<br>
+                    2. <strong>Controller</strong> (Receptionist) receives it and calls the <strong>Service</strong>.<br>
+                    3. <strong>Service</strong> (Chef) runs business logic and asks the <strong>Repository</strong> (Filing Clerk) for data.<br>
+                    4. <strong>Repository</strong> fetches an <strong>Entity</strong> (DB Blueprint) from the DB and returns it.<br>
+                    5. <strong>Service</strong> converts the Entity into a <strong>Response DTO</strong> and gives it to the Controller.<br>
+                    6. <strong>Controller</strong> returns 200 OK + JSON DTO to the client.<br><br>
+                    <strong>Exception Path:</strong><br>
+                    1-3. Same as above.<br>
+                    4. <strong>Repository</strong> finds nothing. <strong>Service</strong> panics and throws a custom <strong>Exception</strong>.<br>
+                    5. The <strong>GlobalExceptionHandler</strong> (Safety Net) intercepts the Exception before it reaches the Controller/Client.<br>
+                    6. The Handler builds an <strong>ErrorResponse DTO</strong> and returns 404 Not Found + JSON Error DTO to the client.
+                </div></details>
+                <details class="qa-item"><summary>25e. What is @Configuration and why haven't we used it explicitly in our project yet? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>What is it?</strong><br>
+                    <code>@Configuration</code> is used to mark a class as a source of bean definitions. Inside this class, you write methods annotated with <code>@Bean</code> to manually configure complex objects (like security filters, custom database connections, or third-party libraries) and tell Spring to manage them. It replaces the massive, messy XML configuration files used in legacy Java apps.<br><br>
+                    <strong>Why haven't we used it explicitly?</strong><br>
+                    1. <strong>Auto-Configuration Magic:</strong> We added H2 and Kafka to our <code>pom.xml</code>. Spring Boot saw them and automatically generated all the configuration behind the scenes! We didn't have to manually configure a <code>DataSource</code> or a <code>KafkaTemplate</code>.<br>
+                    2. <strong>We technically ARE using it:</strong> The <code>@SpringBootApplication</code> annotation on our main class actually has <code>@Configuration</code> hidden inside it! So our main class is technically a configuration class.<br><br>
+                    <strong>When will we use it?</strong> We will create custom <code>@Configuration</code> classes when we need to override Spring's defaults, such as implementing Spring Security (which requires a custom security configuration class) or connecting to multiple different databases at the same time.
+                </div></details>
+                <details class="qa-item"><summary>25f. Where do we use @EnableAutoConfiguration? <span class="priority high">High</span></summary><div class="answer-content">
+                    Just like <code>@Configuration</code>, you are <em>already</em> using it without explicitly typing it! <br><br>
+                    The <code>@SpringBootApplication</code> annotation that sits at the top of your main class (e.g., <code>PaymentServiceApplication.java</code>) is a "meta-annotation". It is essentially a powerful shortcut that bundles three annotations into one:<br>
+                    1. <code>@Configuration</code><br>
+                    2. <code>@ComponentScan</code><br>
+                    3. <strong><code>@EnableAutoConfiguration</code></strong><br><br>
+                    <strong>What does it do?</strong> It is the magic switch. It tells Spring Boot to look at your <code>pom.xml</code> and automatically configure beans based on what it finds. If it sees the Kafka dependency, it auto-configures a KafkaTemplate. If it sees a Web dependency, it auto-configures Tomcat. <br>
+                    You rarely type <code>@EnableAutoConfiguration</code> by itself unless you are building a highly customized app from scratch without using the standard <code>@SpringBootApplication</code> shortcut.
+                </div></details>
+                <details class="qa-item"><summary>25g. Are DTO files like POJO classes? <span class="priority med">Medium</span></summary><div class="answer-content">
+                    <strong>Yes, absolutely!</strong> In fact, a DTO <em>is</em> a POJO.<br><br>
+                    <strong>POJO (Plain Old Java Object)</strong> describes the <em>structure</em> of the class. It simply means the class is a normal Java class with private variables and getters/setters, and it doesn't extend or implement any heavy framework-specific classes. <br><br>
+                    <strong>DTO (Data Transfer Object)</strong> describes the <em>purpose</em> of the class. It is a POJO whose specific job is to carry data across a network (like sending JSON to a frontend).<br><br>
+                    Similarly, our <code>Payment.java</code> <strong>Entity</strong> is also just a POJO, but its specific purpose is to map to a database table. So, all DTOs are POJOs, but not all POJOs are DTOs!
+                </div></details>
+                <details class="qa-item"><summary>25h. Since H2 is an in-memory database that deletes all data on stop, how does it have data when we restart the application? <span class="priority med">Medium</span></summary><div class="answer-content">
+                    We seed the database every time the application starts up! There are a few ways to do this in Spring Boot, but in our project, we used the <code>@PostConstruct</code> annotation.<br><br>
+                    <strong>How @PostConstruct works:</strong><br>
+                    When Spring Boot starts up, it creates the <code>LoanService</code> bean. As soon as the bean is fully constructed and its dependencies (like the Repository) are injected, Spring looks for any method inside that class annotated with <code>@PostConstruct</code>. It executes that method exactly once.<br><br>
+                    Inside our <code>@PostConstruct</code> method, we wrote Java code that says: <em>"If the database is empty, create a new Loan Entity for John Doe and save it to the H2 database."</em> Because this runs every single time the application boots up, our in-memory database always starts with our dummy data perfectly intact!
+                </div></details>
+                
+                <!-- Senior/Advanced Level (26-30) -->
+                <details class="qa-item"><summary>26. How does Spring handle Circular Dependencies? <span class="priority high">Senior</span></summary><div class="answer-content">If A depends on B, and B depends on A, constructor injection fails immediately. With setter injection, Spring uses a three-tier cache (singletonObjects, earlySingletonObjects, singletonFactories) to resolve it. However, it's a design smell and should be fixed via redesign.</div></details>
+                <details class="qa-item"><summary>27. @Transactional propagation levels? <span class="priority high">Senior</span></summary><div class="answer-content">`REQUIRED` (join existing or create new), `REQUIRES_NEW` (suspend existing, start new), `SUPPORTS`, `MANDATORY`, `NEVER`. Crucial for handling nested financial transactions where an audit log must save even if the main transaction rolls back (`REQUIRES_NEW`).</div></details>
+                <details class="qa-item"><summary>28. Optimistic vs Pessimistic Locking in JPA? <span class="priority high">Senior</span></summary><div class="answer-content">Optimistic: Uses a `@Version` column. Throws `OptimisticLockException` if two threads update simultaneously (good for high read, low write). Pessimistic: Uses DB-level row locks (e.g., `SELECT FOR UPDATE`). Blocks other threads entirely (necessary for critical financial calculations).</div></details>
+                <details class="qa-item"><summary>29. Spring Bean Lifecycle? <span class="priority high">Senior</span></summary><div class="answer-content">Instantiate -> Populate Properties -> `BeanNameAware` -> `BeanFactoryAware` -> Pre-initialization (`BeanPostProcessor`) -> `InitializingBean` (afterPropertiesSet) -> Custom init -> Post-initialization -> Ready -> Destroy.</div></details>
+                <details class="qa-item"><summary>30. Customizing Spring Boot Auto-Configuration? <span class="priority high">Senior</span></summary><div class="answer-content">Use `@ConditionalOnClass`, `@ConditionalOnMissingBean`, or `@ConditionalOnProperty` to create configurations that only load when specific criteria are met, which is how Spring Boot's internal magic actually works.</div></details>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: MICROSERVICES ==================== -->
+        <div class="tab-content" id="microservices">
+            <h2 class="section-title">Microservices Architecture</h2>
+            <p style="color: var(--text-muted)">The backbone of enterprise scale. Master distributed systems patterns.</p>
+            
+            <div class="qa-accordion">
+                <!-- High Priority (1-5) -->
+                <details class="qa-item"><summary>1. Monolith vs Microservices? <span class="priority high">High</span></summary><div class="answer-content">Monolith: All features in one codebase, deployed together, hard to scale independently. Microservices: Small, independent services communicating via network, independently deployable and scalable, but adds network/operational complexity.<div class="study-material"><strong>Study Material:</strong> Martin Fowler: Microservices Guide.</div></div></details>
+                <details class="qa-item"><summary>1b. Do enterprise apps use H2 in production, and is there one Database for all APIs? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>1. Do they use H2?</strong><br>
+                    No. H2 is an in-memory database used exclusively for local development and fast unit testing. Every time the app restarts, data is wiped. In real enterprise production (like at TFS), they use persistent relational databases like <strong>PostgreSQL, MySQL, Oracle, or Microsoft SQL Server</strong>, or NoSQL databases like <strong>MongoDB/Cassandra</strong>.<br><br>
+                    <strong>2. Is the DB the same for all APIs?</strong><br>
+                    In a Monolith, yes, they all share one giant database. But in a <strong>Microservices Architecture</strong>, the golden rule is <strong>Database-per-Service</strong>. <code>Payment Service</code> has its own isolated database, and <code>Loan Service</code> has its own isolated database. They cannot directly query each other's databases via SQL. They <em>must</em> communicate via APIs or Events (like Kafka). This prevents tight coupling and single points of failure.
+                </div></details>
+                <details class="qa-item"><summary>2. What is Idempotency? <span class="priority high">High</span></summary><div class="answer-content">Making a request multiple times has the same outcome as making it once. Essential in payments (e.g., retrying a failed network call shouldn't charge the user twice). Achieved using unique `Idempotency-Key` headers.<div class="study-material"><strong>Study Material:</strong> Stripe API Docs on Idempotency.</div></div></details>
+                <details class="qa-item"><summary>3. Synchronous vs Asynchronous Services/Calls? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>Synchronous (REST, gRPC):</strong> The caller sends a request and <em>blocks</em> (waits) until the receiver sends a response. <br>
+                    <em>Pros:</em> Easy to implement, immediate feedback (success/fail). <br>
+                    <em>Cons:</em> Tight coupling. If the receiver is down, the caller fails (cascading failures). It ties up system threads while waiting.<br><br>
+                    <strong>Asynchronous (Kafka, RabbitMQ, SQS):</strong> The caller fires an event/message into a broker and immediately moves on. The receiver processes it when ready. <br>
+                    <em>Pros:</em> Loose coupling, highly resilient. If the receiver crashes, the message stays in the queue until it wakes back up. <br>
+                    <em>Cons:</em> Complex to debug (no immediate error response), requires eventual consistency.
+                    <div class="study-material"><strong>Study Material:</strong> Enterprise Integration Patterns.</div>
+                </div></details>
+                <details class="qa-item"><summary>4. Repo Strategies: Monorepo vs Polyrepo? (And what does TFS use?) <span class="priority high">High</span></summary><div class="answer-content">
+                    When building Microservices, where do you store the code?<br><br>
+                    <strong>Monorepo:</strong> All microservices live inside ONE giant Git repository. (<em>This is exactly what we just did for our local project! We put <code>payment-service</code> and <code>loan-service</code> into one GitHub repo.</em>)<br>
+                    <em>Pros:</em> Easy to share code/libraries, single PR can update APIs across all services, unified CI/CD pipeline, simplified dependency management.<br>
+                    <em>Cons:</em> The repository becomes massive, requires advanced build tools (Bazel/Gradle Enterprise) to only build what changed.<br><br>
+                    <strong>Polyrepo (Multi-repo):</strong> Every microservice gets its own dedicated Git repository. (<em>This is what TFS and most large enterprises use!</em>)<br>
+                    <em>Pros:</em> Clear boundaries, repository stays small and fast, teams have total autonomy over their specific service's Git history and deployment. The Payment team can deploy 10 times a day without impacting the Loan team.<br>
+                    <em>Cons:</em> Hard to share common code (requires publishing internal packages), changing an API contract requires coordinating PRs across multiple repositories.<br><br>
+                    <em>Note: We used a Monorepo locally just so you only have to manage one GitHub link for your portfolio, but in a real TFS environment, you would have created 3 separate repositories!</em>
+                    <div class="study-material"><strong>Study Material:</strong> Google Engineering Practices on Monorepos.</div>
+                </div></details>
+                <details class="qa-item"><summary>5. What is the SAGA Pattern? <span class="priority high">High</span></summary><div class="answer-content">Manages distributed transactions across microservices. Instead of a single DB lock (2PC), each service performs a local transaction and publishes an event. If a downstream service fails, compensating events are fired to undo previous steps.<div class="study-material"><strong>Study Material:</strong> Microservices.io: Saga Pattern.</div></div></details>
+                <details class="qa-item"><summary>5. What is an API Gateway? <span class="priority high">High</span></summary><div class="answer-content">A single entry point for all clients. It handles routing, authentication, rate limiting, and CORS, shielding internal microservices from direct external access.<div class="study-material"><strong>Study Material:</strong> NGINX/AWS API Gateway docs.</div></div></details>
+
+                <!-- Medium Priority (6-15) -->
+                <details class="qa-item"><summary>6. Circuit Breaker Pattern? <span class="priority med">Medium</span></summary><div class="answer-content">Prevents cascading failures. If Service B is slow, Service A's calls to it will "trip" the circuit breaker (e.g., Resilience4j), immediately failing fast so Service A doesn't run out of threads waiting.<div class="study-material"><strong>Study Material:</strong> Martin Fowler: CircuitBreaker.</div></div></details>
+                <details class="qa-item"><summary>7. Service Discovery? <span class="priority med">Medium</span></summary><div class="answer-content">Since microservices scale and change IPs dynamically, a Registry (like Eureka or Consul) keeps track of their current IPs so they can find each other via logical names.<div class="study-material"><strong>Study Material:</strong> Spring Cloud Netflix Eureka.</div></div></details>
+                <details class="qa-item"><summary>8. CQRS Pattern? <span class="priority med">Medium</span></summary><div class="answer-content">Command Query Responsibility Segregation. Splitting the read model (Query) from the write model (Command) into separate databases to optimize performance independently.<div class="study-material"><strong>Study Material:</strong> Microservices.io: CQRS.</div></div></details>
+                <details class="qa-item"><summary>9. Distributed Tracing? <span class="priority med">Medium</span></summary><div class="answer-content">When a request hits 5 different services, finding the bottleneck is hard. Tools like Zipkin/Jaeger generate a `traceId` passed through headers to visualize the entire request journey.<div class="study-material"><strong>Study Material:</strong> Spring Cloud Sleuth/Micrometer Tracing.</div></div></details>
+                <details class="qa-item"><summary>10. What is Apache Kafka? <span class="priority med">Medium</span></summary><div class="answer-content">A distributed event streaming platform. Services "produce" events to "Topics", and other services "consume" them asynchronously. Excellent for decoupled, high-throughput financial architectures.<div class="study-material"><strong>Study Material:</strong> Confluent Kafka Introduction.</div></div></details>
+                <details class="qa-item"><summary>10b. Do I need to start Docker first in order to startup Kafka? <span class="priority med">Medium</span></summary><div class="answer-content">
+                    <strong>Yes, if you are running it locally via docker-compose!</strong><br><br>
+                    Kafka is a massive, complex piece of standalone software that requires specific Linux environments, Java paths, and networking ports. Instead of installing all that raw garbage directly onto our Mac, we use a <code>docker-compose.yml</code> file.<br><br>
+                    This file tells the <strong>Docker Engine</strong>: <em>"Go download the official, perfectly-configured Kafka environment and turn it on in a tiny, isolated box (a container) on my machine."</em><br><br>
+                    If the Docker Desktop application is not running in your Mac's menu bar, the Docker Engine is off. When you run <code>docker-compose up -d</code>, your terminal will throw an error because it has no engine to execute the instructions.
+                </div></details>
+                <details class="qa-item"><summary>11. Strangler Fig Pattern? <span class="priority med">Medium</span></summary><div class="answer-content">A migration strategy. Slowly replacing pieces of a monolith with microservices behind an API Gateway until the monolith is completely "strangled" and retired.<div class="study-material"><strong>Study Material:</strong> Martin Fowler: StranglerFigApplication.</div></div></details>
+                <details class="qa-item"><summary>12. How to handle Database per Service? <span class="priority med">Medium</span></summary><div class="answer-content">Each microservice should own its own database to ensure loose coupling. They cannot query each other's databases directly; they must use APIs or Events.<div class="study-material"><strong>Study Material:</strong> Microservices.io: Database per service.</div></div></details>
+                <details class="qa-item"><summary>13. Bulkhead Pattern? <span class="priority med">Medium</span></summary><div class="answer-content">Isolating elements into pools (like ship compartments). If one service's thread pool is exhausted, it doesn't crash the entire application's resources.<div class="study-material"><strong>Study Material:</strong> Microsoft Azure Architecture Patterns.</div></div></details>
+                <details class="qa-item"><summary>14. Two-Phase Commit (2PC)? <span class="priority med">Medium</span></summary><div class="answer-content">A legacy distributed transaction protocol. Phase 1: Ask all databases to prepare. Phase 2: Commit. Rarely used in microservices due to blocking and performance issues (SAGA is preferred).<div class="study-material"><strong>Study Material:</strong> Distributed Systems Concepts.</div></div></details>
+                <details class="qa-item"><summary>15. Centralized Logging? <span class="priority med">Medium</span></summary><div class="answer-content">Because you have 50 services running, you can't SSH into servers to read logs. You use the ELK stack (Elasticsearch, Logstash, Kibana) or Splunk to aggregate all logs in one searchable dashboard.<div class="study-material"><strong>Study Material:</strong> Elastic Stack Docs.</div></div></details>
+
+                <!-- Low Priority (16-25) -->
+                <details class="qa-item"><summary>16. What is JWT? <span class="priority low">Low</span></summary><div class="answer-content">JSON Web Token. A stateless authentication token. The client passes it in the header, and any service can mathematically verify its signature without hitting a database.</div></details>
+                <details class="qa-item"><summary>17. Config Server? <span class="priority low">Low</span></summary><div class="answer-content">A central repository (like Spring Cloud Config) that manages properties files for all microservices across all environments, updating them without restarting.</div></details>
+                <details class="qa-item"><summary>18. Retry Pattern? <span class="priority low">Low</span></summary><div class="answer-content">Automatically retrying a failed network call (with exponential backoff) assuming the failure is a temporary glitch.</div></details>
+                <details class="qa-item"><summary>19. Dead Letter Queue (DLQ)? <span class="priority low">Low</span></summary><div class="answer-content">If a Kafka/SQS message fails processing multiple times, it is moved to a DLQ for manual inspection so it doesn't block the queue.</div></details>
+                <details class="qa-item"><summary>20. What is gRPC? <span class="priority low">Low</span></summary><div class="answer-content">A high-performance RPC framework by Google using Protobufs instead of JSON, operating over HTTP/2. Much faster than REST for internal service communication.</div></details>
+                <details class="qa-item"><summary>21. Docker basics? <span class="priority low">Low</span></summary><div class="answer-content">Containerization. Packages your app and its dependencies (Java, OS) into a single image so it runs identically on any machine.</div></details>
+                <details class="qa-item"><summary>22. Kubernetes (K8s) basics? <span class="priority low">Low</span></summary><div class="answer-content">Container Orchestration. It manages thousands of Docker containers, handling auto-scaling, self-healing (restarting crashed containers), and load balancing.</div></details>
+                <details class="qa-item"><summary>23. Backend For Frontend (BFF)? <span class="priority low">Low</span></summary><div class="answer-content">Creating a specific API Gateway just for one type of client (e.g., one for Mobile, one for Web) to format data specifically for their UI needs.</div></details>
+                <details class="qa-item"><summary>24. Event Sourcing? <span class="priority low">Low</span></summary><div class="answer-content">Instead of storing the current state (Balance: $100), you store the history of all events (+150, -50). Current state is derived by replaying events.</div></details>
+                <details class="qa-item"><summary>25. Rate Limiting? <span class="priority low">Low</span></summary><div class="answer-content">Protecting your APIs from DDoS or overuse by restricting a user/IP to X requests per minute. Usually implemented at the API Gateway.</div></details>
+                <details class="qa-item"><summary>25b. What is Docker and why do we need it? <span class="priority med">Medium</span></summary><div class="answer-content">Docker is a tool for containerization. It packages an application and all its dependencies (like the OS, Java version, and libraries) into a single, standardized box called a "Container". We need it because it guarantees the software will run perfectly on any machine, eliminating the "it works on my machine" problem. In our case, we use it to instantly spin up complex databases or brokers (like Kafka) locally without tedious manual installations.</div></details>
+                <details class="qa-item"><summary>25c. What is Kafka and why do we need it in microservices? <span class="priority high">High</span></summary><div class="answer-content">Apache Kafka is a highly reliable, distributed event streaming platform. Think of it as a super-fast, indestructible post office.<br><br><strong>Why we need it:</strong> In microservices, services shouldn't talk to each other directly (synchronously) because if Service B goes down, Service A fails. With Kafka, Service A (Producer) drops a letter (an Event) into a Kafka Topic (a mailbox). Service B (Consumer) checks the mailbox and processes the letter when it is ready. If Service B crashes, the letter just stays safe in the Kafka mailbox until Service B wakes back up. This provides massive resiliency and loose coupling.</div></details>
+                <details class="qa-item"><summary>25d. Is Kafka a separate application that needs to run on its own platform like Docker? <span class="priority med">Medium</span></summary><div class="answer-content">Yes, exactly! Kafka is not a library (like Lombok) that gets compiled <em>into</em> your Spring Boot application. It is a completely standalone piece of infrastructure software, just like a PostgreSQL database. It runs as its own server (or a cluster of servers). It doesn't <em>have</em> to run on Docker (it can run directly on Linux servers or as a managed cloud service like AWS MSK), but we use Docker locally because it is the easiest way to spin up complex infrastructure on a developer's laptop without manually installing raw binaries.</div></details>
+                <details class="qa-item"><summary>25e. Where should I run terminal commands (like curl or docker-compose)? Inside IntelliJ or a separate Mac terminal? <span class="priority low">Low</span></summary><div class="answer-content">
+                    It actually doesn't matter! The terminal inside IntelliJ is the exact same program as the standalone Terminal app (or iTerm2) on your Mac. They both tap into the exact same underlying operating system shell.<br><br>
+                    <strong>Best Practices:</strong><br>
+                    - <strong>docker-compose:</strong> You must run this command in the specific folder where your <code>docker-compose.yml</code> file is located (in our case, the root workspace folder). Whether you use the IntelliJ terminal or a separate Mac terminal to navigate to that folder doesn't matter.<br>
+                    - <strong>curl (HTTP requests):</strong> A <code>curl</code> command just sends an HTTP request over your computer's internal network. You can run this from <em>any</em> terminal, in <em>any</em> folder, as long as your Spring Boot applications are currently running on their respective ports.
+                </div></details>
+                <details class="qa-item"><summary>25f. In Spring Kafka, what is the __TypeId__ header issue when microservices communicate? <span class="priority high">High</span></summary><div class="answer-content">
+                    By default, when Spring Kafka serializes a Java object into JSON to send to a Topic, it attaches a hidden header called <code>__TypeId__</code>. This header contains the <em>exact package name</em> of the Producer's class (e.g., <code>com.tfs.paymentservice.dto.Event</code>).<br><br>
+                    When the Consumer microservice receives the JSON, Spring tries to look for that exact same package name to deserialize it. But because microservices are totally separate applications, the Consumer's DTO usually lives in a different package (e.g., <code>com.tfs.loanservice.dto.Event</code>). This causes a <code>ClassNotFoundException</code>, and the message fails to process!<br><br>
+                    <strong>The Fix:</strong> In the Consumer's <code>application.properties</code>, you must configure the deserializer to ignore the type headers (<code>use.type.headers=false</code>) and define a default type mapping (<code>value.default.type=com...loanservice.dto.Event</code>) so it maps the raw JSON directly to its own local class.
+                </div></details>
+                
+                <!-- Senior/Advanced Level (26-30) -->
+                <details class="qa-item"><summary>26. Outbox Pattern? <span class="priority high">Senior</span></summary><div class="answer-content">Solves the "Dual Write" problem. Instead of saving to DB and sending a Kafka message (which can fail midway), you save the data AND an "Event" to a local DB `outbox` table in one ACID transaction. A background process (like Debezium) then reads the outbox and publishes to Kafka.</div></details>
+                <details class="qa-item"><summary>27. Handling Data Consistency across Microservices? <span class="priority high">Senior</span></summary><div class="answer-content">You abandon ACID and embrace BASE (Basically Available, Soft state, Eventual consistency). You use Event-Driven Architectures and SAGA patterns to ensure that eventually, all systems converge on the correct state, resolving conflicts via compensating transactions.</div></details>
+                <details class="qa-item"><summary>28. Service Mesh (e.g., Istio)? <span class="priority high">Senior</span></summary><div class="answer-content">A dedicated infrastructure layer (using sidecar proxies) that handles inter-service communication, mTLS security, retries, and observability, completely decoupling these network concerns from your Java code.</div></details>
+                <details class="qa-item"><summary>29. Kafka Partitioning and Ordering? <span class="priority high">Senior</span></summary><div class="answer-content">Kafka only guarantees ordering *within a single partition*. To ensure events for a specific user are processed in order, you must use a partitioning key (like `userId`), guaranteeing all their events go to the exact same partition.</div></details>
+                <details class="qa-item"><summary>30. API Versioning Strategies? <span class="priority high">Senior</span></summary><div class="answer-content">URI routing (`/v1/users`), Query params (`?version=1`), or Custom Headers (`Accept: application/vnd.company.v1+json`). In microservices, it's best to maintain backward compatibility as long as possible (Expand and Contract pattern) before forcing a version bump.</div></details>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: AWS CLOUD ==================== -->
+        <div class="tab-content" id="aws">
+            <h2 class="section-title">AWS Cloud Services</h2>
+            <p style="color: var(--text-muted)">The hardware behind the software. Understand the core managed services.</p>
+            
+            <div class="qa-accordion">
+                <!-- High Priority (1-5) -->
+                <details class="qa-item"><summary>1. EC2 vs S3 vs RDS? <span class="priority high">High</span></summary><div class="answer-content">EC2 (Elastic Compute Cloud) = Renting a Virtual Machine/Server. S3 (Simple Storage Service) = Object storage for files/images. RDS (Relational DB Service) = Managed SQL databases (MySQL, Postgres).<div class="study-material"><strong>Study Material:</strong> AWS Certified Cloud Practitioner notes.</div></div></details>
+                <details class="qa-item"><summary>2. Horizontal vs Vertical Scaling? <span class="priority high">High</span></summary><div class="answer-content">Vertical (Scale Up): Adding more CPU/RAM to a single EC2 instance (has physical limits). Horizontal (Scale Out): Adding more EC2 instances behind a Load Balancer (infinite scale). Cloud prefers Horizontal.<div class="study-material"><strong>Study Material:</strong> AWS Auto Scaling Guide.</div></div></details>
+                <details class="qa-item"><summary>3. What is an Auto Scaling Group (ASG)? <span class="priority high">High</span></summary><div class="answer-content">A service that automatically launches new EC2 instances when CPU/traffic spikes, and terminates them when traffic drops to save money.<div class="study-material"><strong>Study Material:</strong> AWS EC2 Auto Scaling.</div></div></details>
+                <details class="qa-item"><summary>4. IAM Roles vs Policies? <span class="priority high">High</span></summary><div class="answer-content">IAM (Identity Access Management). A Policy is a JSON document defining permissions (e.g., "Can Read S3"). A Role is an entity you attach Policies to, which is then assumed by EC2 instances to securely access other services without hardcoding passwords.<div class="study-material"><strong>Study Material:</strong> AWS IAM Best Practices.</div></div></details>
+                <details class="qa-item"><summary>5. What is a VPC (Virtual Private Cloud)? <span class="priority high">High</span></summary><div class="answer-content">Your private network slice in AWS. You place databases in Private Subnets (no internet access for security) and Load Balancers in Public Subnets (internet facing).<div class="study-material"><strong>Study Material:</strong> AWS VPC fundamentals.</div></div></details>
+
+                <!-- Medium Priority (6-15) -->
+                <details class="qa-item"><summary>6. SQS vs SNS? <span class="priority med">Medium</span></summary><div class="answer-content">SQS (Simple Queue Service): A Pull-based message queue for decoupling services. SNS (Simple Notification Service): A Push-based Pub/Sub service that broadcasts messages to multiple subscribers (Email, SMS, SQS).<div class="study-material"><strong>Study Material:</strong> AWS Messaging: SQS vs SNS.</div></div></details>
+                <details class="qa-item"><summary>7. AWS Lambda (Serverless)? <span class="priority med">Medium</span></summary><div class="answer-content">Run code without provisioning servers. You upload a function, and AWS executes it when triggered (e.g., a file is uploaded to S3). You pay only for compute time used (milliseconds).<div class="study-material"><strong>Study Material:</strong> AWS Lambda documentation.</div></div></details>
+                <details class="qa-item"><summary>8. DynamoDB vs RDS? <span class="priority med">Medium</span></summary><div class="answer-content">RDS is relational (SQL, joins, schema). DynamoDB is NoSQL (Key-Value/Document), highly scalable, serverless, and provides single-digit millisecond latency at any scale.<div class="study-material"><strong>Study Material:</strong> AWS Database Selection Guide.</div></div></details>
+                <details class="qa-item"><summary>9. What is CloudFront? <span class="priority med">Medium</span></summary><div class="answer-content">AWS's Content Delivery Network (CDN). It caches static assets (images, HTML) at edge locations globally so users download them from a server physically close to them, reducing latency.<div class="study-material"><strong>Study Material:</strong> AWS CloudFront overview.</div></div></details>
+                <details class="qa-item"><summary>10. ALB vs NLB (Load Balancers)? <span class="priority med">Medium</span></summary><div class="answer-content">Application Load Balancer (ALB): Operates at Layer 7 (HTTP), understands URLs and routes traffic based on paths. Network Load Balancer (NLB): Operates at Layer 4 (TCP), ultra-fast, handles millions of requests for extreme performance.<div class="study-material"><strong>Study Material:</strong> AWS Elastic Load Balancing.</div></div></details>
+                <details class="qa-item"><summary>11. CloudWatch vs CloudTrail? <span class="priority med">Medium</span></summary><div class="answer-content">CloudWatch: Monitors performance metrics (CPU, RAM) and application logs. CloudTrail: Audits API calls (Who deleted this EC2 instance at 2 AM?).<div class="study-material"><strong>Study Material:</strong> AWS Management Tools.</div></div></details>
+                <details class="qa-item"><summary>12. Elasticache? <span class="priority med">Medium</span></summary><div class="answer-content">Managed Redis or Memcached. An in-memory cache used to store frequently accessed database queries to reduce load on the primary RDS database.<div class="study-material"><strong>Study Material:</strong> AWS Elasticache Use Cases.</div></div></details>
+                <details class="qa-item"><summary>13. Route 53? <span class="priority med">Medium</span></summary><div class="answer-content">AWS's highly available Domain Name System (DNS) web service. Maps domain names (toyotafinancial.com) to IP addresses or AWS Load Balancers.<div class="study-material"><strong>Study Material:</strong> Route 53 Routing Policies.</div></div></details>
+                <details class="qa-item"><summary>14. S3 Storage Classes? <span class="priority med">Medium</span></summary><div class="answer-content">Standard (frequent access), Standard-IA (infrequent access, cheaper storage), Glacier (long-term archive, cheapest, takes hours to retrieve).<div class="study-material"><strong>Study Material:</strong> S3 Tiering strategy.</div></div></details>
+                <details class="qa-item"><summary>15. What is API Gateway? <span class="priority med">Medium</span></summary><div class="answer-content">AWS managed service to create, publish, and secure APIs at scale. Often used in front of Lambda functions to create serverless REST APIs.<div class="study-material"><strong>Study Material:</strong> AWS API Gateway.</div></div></details>
+
+                <!-- Low Priority (16-25) -->
+                <details class="qa-item"><summary>16. Security Groups vs NACLs? <span class="priority low">Low</span></summary><div class="answer-content">Security Groups: Stateful, applied at the EC2 instance level. NACLs (Network Access Control Lists): Stateless, applied at the Subnet level.</div></details>
+                <details class="qa-item"><summary>17. What is Infrastructure as Code (IaC)? <span class="priority low">Low</span></summary><div class="answer-content">Using tools like AWS CloudFormation or Terraform to write code that provisions AWS resources automatically, rather than clicking through the console.</div></details>
+                <details class="qa-item"><summary>18. EKS vs ECS? <span class="priority low">Low</span></summary><div class="answer-content">Both run Docker containers. ECS is AWS's proprietary orchestrator (simpler). EKS is managed Kubernetes (open-source standard, more complex).</div></details>
+                <details class="qa-item"><summary>19. What is AWS KMS? <span class="priority low">Low</span></summary><div class="answer-content">Key Management Service. Creates and manages cryptographic keys to encrypt data at rest (in S3, RDS) and in transit.</div></details>
+                <details class="qa-item"><summary>20. VPC Peering? <span class="priority low">Low</span></summary><div class="answer-content">A networking connection between two VPCs that allows them to route traffic to each other securely over the private AWS network.</div></details>
+                <details class="qa-item"><summary>21. EventBridge? <span class="priority low">Low</span></summary><div class="answer-content">A serverless event bus that connects applications together using data from your own apps, SaaS apps, and AWS services.</div></details>
+                <details class="qa-item"><summary>22. Spot Instances? <span class="priority low">Low</span></summary><div class="answer-content">Unused EC2 capacity available at huge discounts (up to 90%). However, AWS can terminate them with 2 minutes notice. Used for fault-tolerant background jobs.</div></details>
+                <details class="qa-item"><summary>23. What is an Elastic IP? <span class="priority low">Low</span></summary><div class="answer-content">A static, public IPv4 address designed for dynamic cloud computing. If an EC2 fails, you can quickly remap the IP to a replacement instance.</div></details>
+                <details class="qa-item"><summary>24. Cloud architecture best practices? <span class="priority low">Low</span></summary><div class="answer-content">Design for failure, decouple components (use queues), implement elasticity (auto-scaling), and follow least-privilege security.</div></details>
+                <details class="qa-item"><summary>25. Multi-AZ vs Read Replicas? <span class="priority low">Low</span></summary><div class="answer-content">Multi-AZ: Synchronous replication to another Availability Zone for Disaster Recovery (Failover). Read Replica: Asynchronous copy used to offload heavy READ queries for performance scaling.</div></details>
+
+                <!-- Senior/Advanced Level (26-30) -->
+                <details class="qa-item"><summary>26. SQS Standard vs FIFO Queues? <span class="priority high">Senior</span></summary><div class="answer-content">Standard offers massive throughput but guarantees "at-least-once" delivery (possible duplicates) and "best-effort" ordering. FIFO guarantees exactly-once processing and strict ordering, but at a significantly lower throughput limit (3,000 msg/sec).</div></details>
+                <details class="qa-item"><summary>27. DynamoDB Partition Keys & Hot Partitions? <span class="priority high">Senior</span></summary><div class="answer-content">DynamoDB physically splits data based on the Partition Key. If all users suddenly query the same key (e.g., a viral product), that partition gets overwhelmed ("Hot Partition"), leading to throttling. Solution: Add random suffixes to keys (Write Sharding).</div></details>
+                <details class="qa-item"><summary>28. AWS Fargate vs EC2 for ECS? <span class="priority high">Senior</span></summary><div class="answer-content">EC2 requires you to manage, patch, and scale the underlying servers that run your containers. Fargate is serverless compute for containers; you specify CPU/RAM, and AWS manages the infrastructure entirely.</div></details>
+                <details class="qa-item"><summary>29. Designing a Multi-Region Active-Active Architecture? <span class="priority high">Senior</span></summary><div class="answer-content">Use Route 53 latency-based routing to direct users to the closest region (us-east vs eu-west). Use DynamoDB Global Tables or Aurora Global Database for multi-master, cross-region asynchronous data replication.</div></details>
+                <details class="qa-item"><summary>30. Troubleshooting a 502/504 Gateway Error? <span class="priority high">Senior</span></summary><div class="answer-content">502 (Bad Gateway): ALB couldn't parse the response from the EC2 target (target crashed or returned malformed HTTP). 504 (Gateway Timeout): Target didn't respond in time. Fix: Check target health, increase ALB timeout, or optimize the slow backend query.</div></details>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 5: TFS & DSA ==================== -->
+        <div class="tab-content" id="tfs">
+            <h2 class="section-title">TFS Culture & DSA CodeSignal Prep</h2>
+            <p style="color: var(--text-muted)">Master the "Toyota Way" and the most commonly asked algorithmic patterns.</p>
+            
+            <div class="qa-accordion">
+                <!-- High Priority (1-5) -->
+                <details class="qa-item"><summary>1. The "Toyota Way": Kaizen <span class="priority high">High</span></summary><div class="answer-content">Kaizen means "Continuous Improvement". You MUST have a STAR story ready. <i>"Situation: QA scripts were slow. Action: I automated them into CI/CD. Result: Saved 10 hours a week."</i><div class="study-material"><strong>Study Material:</strong> Research "The Toyota Way" 14 Principles.</div></div></details>
+                <details class="qa-item"><summary>2. The "Toyota Way": Respect for People <span class="priority high">High</span></summary><div class="answer-content">Toyota values teamwork and psychological safety. Prepare a story about resolving a conflict with a developer peacefully, prioritizing the project over ego.<div class="study-material"><strong>Study Material:</strong> Behavioral STAR method preparation.</div></div></details>
+                <details class="qa-item"><summary>3. DSA: Two Sum (HashMaps) <span class="priority high">High</span></summary><div class="answer-content">Given an array and a target, find 2 indices. <strong>Optimal:</strong> O(N). Iterate once. Calculate `target - num[i]`. If it's in the HashMap, return indices. Else, put `num[i]` and `index` in the map.<div class="study-material"><strong>Study Material:</strong> LeetCode #1 (Two Sum).</div></div></details>
+                <details class="qa-item"><summary>4. DSA: Valid Anagram <span class="priority high">High</span></summary><div class="answer-content">Check if two strings have the same characters. <strong>Optimal:</strong> O(N). Create an `int[26]` frequency array. Increment counts for string A, decrement for string B. If any count != 0, return false.<div class="study-material"><strong>Study Material:</strong> LeetCode #242 (Valid Anagram).</div></div></details>
+                <details class="qa-item"><summary>5. DSA: Sliding Window (Max Subarray) <span class="priority high">High</span></summary><div class="answer-content">Find max sum of contiguous subarray of size K. <strong>Optimal:</strong> O(N). Calculate sum of first K elements. Slide window by subtracting the left element leaving and adding the right element entering.<div class="study-material"><strong>Study Material:</strong> NeetCode: Sliding Window pattern.</div></div></details>
+
+                <!-- Medium Priority (6-15) -->
+                <details class="qa-item"><summary>6. Transitioning from QA to Backend? <span class="priority med">Medium</span></summary><div class="answer-content">Frame it as an advantage! <i>"I know exactly how APIs fail because I've spent years breaking them. Now I want to build them defensively."</i> Emphasize your test-driven mindset.<div class="study-material"><strong>Study Material:</strong> Crafting your "Tell me about yourself" pitch.</div></div></details>
+                <details class="qa-item"><summary>7. DSA: Valid Parentheses (Stacks) <span class="priority med">Medium</span></summary><div class="answer-content">Check if brackets close correctly. <strong>Optimal:</strong> O(N). Use a Stack. If open bracket, push. If close bracket, check if it matches the `pop()` of the stack. Stack must be empty at the end.<div class="study-material"><strong>Study Material:</strong> LeetCode #20.</div></div></details>
+                <details class="qa-item"><summary>8. DSA: Best Time to Buy/Sell Stock <span class="priority med">Medium</span></summary><div class="answer-content">Find max profit. <strong>Optimal:</strong> O(N). Keep track of `minPrice` seen so far. For each day, calculate `price - minPrice` and update `maxProfit` if it's higher.<div class="study-material"><strong>Study Material:</strong> LeetCode #121.</div></div></details>
+                <details class="qa-item"><summary>9. DSA: Linked List Reversal <span class="priority med">Medium</span></summary><div class="answer-content">Iterate list using 3 pointers: `prev`, `curr`, `next`. `next = curr.next`, `curr.next = prev`, `prev = curr`, `curr = next`. Return `prev`.<div class="study-material"><strong>Study Material:</strong> LeetCode #206.</div></div></details>
+                <details class="qa-item"><summary>10. DSA: Binary Search <span class="priority med">Medium</span></summary><div class="answer-content">Find target in SORTED array. O(log N). `left = 0`, `right = len-1`. `mid = left + (right-left)/2`. Adjust left/right bounds based on comparing `mid` to target.<div class="study-material"><strong>Study Material:</strong> LeetCode #704.</div></div></details>
+                <details class="qa-item"><summary>11. DSA: Merge Two Sorted Lists <span class="priority med">Medium</span></summary><div class="answer-content">Use a `dummy` node. While both lists exist, append the smaller node to `dummy.next` and advance that list. Attach remaining elements at the end.<div class="study-material"><strong>Study Material:</strong> LeetCode #21.</div></div></details>
+                <details class="qa-item"><summary>12. DSA: Valid Palindrome <span class="priority med">Medium</span></summary><div class="answer-content">Two pointers (left at start, right at end). Ignore non-alphanumeric chars. If `charAt(left) != charAt(right)`, return false. Move pointers inward.<div class="study-material"><strong>Study Material:</strong> LeetCode #125.</div></div></details>
+                <details class="qa-item"><summary>13. Genchi Genbutsu (Go and See) <span class="priority med">Medium</span></summary><div class="answer-content">Toyota principle: To understand a problem, you must go to the source. Story idea: Digging into raw server logs or database rows instead of guessing why a test failed.<div class="study-material"><strong>Study Material:</strong> Toyota Production System principles.</div></div></details>
+                <details class="qa-item"><summary>14. What is Big-O Time Complexity? <span class="priority med">Medium</span></summary><div class="answer-content">O(1) is instant. O(log N) halves data (Binary Search). O(N) loops once. O(N log N) is sorting. O(N^2) is double loops (slow!). Always aim for O(N) or better.<div class="study-material"><strong>Study Material:</strong> Big-O Cheat Sheet.</div></div></details>
+                <details class="qa-item"><summary>15. DSA: Group Anagrams <span class="priority med">Medium</span></summary><div class="answer-content">Given an array of strings, group anagrams. <strong>Optimal:</strong> Iterate strings, sort each string alphabetically to use as a HashMap key. Append original string to the map's list of values.<div class="study-material"><strong>Study Material:</strong> LeetCode #49.</div></div></details>
+
+                <!-- Low Priority (16-25) -->
+                <details class="qa-item"><summary>16. Explain a challenging bug you fixed. <span class="priority low">Low</span></summary><div class="answer-content">Use STAR. Focus on the *process* of debugging (e.g., isolating variables, checking logs, creating minimal reproducible examples).</div></details>
+                <details class="qa-item"><summary>17. DSA: Longest Substring w/o Repeating Chars <span class="priority low">Low</span></summary><div class="answer-content">Sliding Window with a HashSet. Expand right pointer. If duplicate found, shrink left pointer until duplicate is removed from Set.</div></details>
+                <details class="qa-item"><summary>18. DSA: Detect Cycle in Linked List <span class="priority low">Low</span></summary><div class="answer-content">Floyd's Tortoise and Hare. `slow` moves 1 step, `fast` moves 2 steps. If they ever equal each other, there is a cycle.</div></details>
+                <details class="qa-item"><summary>19. DSA: Invert Binary Tree <span class="priority low">Low</span></summary><div class="answer-content">Recursively swap the left and right children of every node. (The classic "Google interview" question).</div></details>
+                <details class="qa-item"><summary>20. DSA: Top K Frequent Elements <span class="priority low">Low</span></summary><div class="answer-content">Count frequencies in a HashMap, then use a Min-Heap (PriorityQueue) of size K to keep only the largest frequencies. O(N log K).</div></details>
+                <details class="qa-item"><summary>21. Handling failure/mistakes (Toyota Culture) <span class="priority low">Low</span></summary><div class="answer-content">Toyota encourages pulling the "Andon Cord" (stopping work when a defect is found). Discuss a time you admitted a mistake early to prevent a larger disaster.</div></details>
+                <details class="qa-item"><summary>22. DSA: Number of Islands (Graphs) <span class="priority low">Low</span></summary><div class="answer-content">DFS or BFS. Iterate through grid. When finding a '1', increment island count, then DFS to sink all connected '1's to '0's to avoid recounting.</div></details>
+                <details class="qa-item"><summary>23. Design a URL Shortener (System Design) <span class="priority low">Low</span></summary><div class="answer-content">Hash original URL, take first 7 chars. Store in DB (Short -> Long). Use a load balancer and API Gateway. Cache reads with Redis.</div></details>
+                <details class="qa-item"><summary>24. DSA: 3Sum <span class="priority low">Low</span></summary><div class="answer-content">Sort array. Iterate `i`. Use two pointers (`left`, `right`) on the remaining array to find sum `== 0`. Skip duplicates to avoid duplicate triplets.</div></details>
+                <details class="qa-item"><summary>25. Why do you want to work at Toyota Financial Services? <span class="priority low">Low</span></summary><div class="answer-content">Relate it to scale, stability, the transition to mobility tech, and alignment with Kaizen. (Do NOT just say "I need a backend job").</div></details>
+
+                <!-- Senior/Advanced Level (26-30) -->
+                <details class="qa-item"><summary>26. DSA: LRU Cache Implementation <span class="priority high">Senior</span></summary><div class="answer-content">Least Recently Used Cache. <strong>Optimal:</strong> Combine a `HashMap` (for O(1) lookup) and a `Doubly Linked List` (for O(1) removals/additions). When a node is accessed, move it to the head. When full, evict the tail.</div></details>
+                <details class="qa-item"><summary>27. DSA: Trie (Prefix Tree) <span class="priority high">Senior</span></summary><div class="answer-content">Used for auto-complete and fast string prefix matching. Each node represents a character. Finding a word of length L takes O(L) time, which is much faster than searching a HashMap or Array for partial matches.</div></details>
+                <details class="qa-item"><summary>28. DSA: Graph BFS vs DFS <span class="priority high">Senior</span></summary><div class="answer-content">Breadth-First Search uses a Queue and explores level-by-level (great for finding the shortest path, e.g., friend connections). Depth-First Search uses a Stack/Recursion and explores as deep as possible before backtracking (great for maze solving or topological sort).</div></details>
+                <details class="qa-item"><summary>29. Senior Behavioral: Leading Architecture Changes <span class="priority high">Senior</span></summary><div class="answer-content">Prepare a STAR story about a time you noticed a systemic flaw (e.g., tight coupling), proposed a new architecture, achieved buy-in from management/peers, and executed the migration with zero downtime.</div></details>
+                <details class="qa-item"><summary>30. Senior Behavioral: Mentoring and Code Reviews <span class="priority high">Senior</span></summary><div class="answer-content">Seniors are multipliers. Discuss how you conduct code reviews—not just hunting for bugs, but explaining the *why* behind design patterns to elevate the skills of junior developers on your team.</div></details>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

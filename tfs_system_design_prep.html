@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toyota Financial Services - System Design Prep</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: rgba(30, 41, 59, 0.75);
+            --primary: #10b981; /* Emerald Green for Design */
+            --secondary: #3b82f6; /* Blue */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .bg-orbs {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; z-index: -1; pointer-events: none;
+        }
+        .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.5; animation: float 20s infinite ease-in-out alternate; }
+        .orb-1 { background: rgba(16, 185, 129, 0.3); width: 50vw; height: 50vw; top: -20%; left: -10%; }
+        .orb-2 { background: rgba(59, 130, 246, 0.25); width: 40vw; height: 40vw; bottom: -10%; right: -10%; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10%, 15%) scale(1.1); } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+        header { text-align: center; margin-bottom: 50px; }
+        header h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        header h1 span { background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { font-size: 1.2rem; color: var(--text-muted); }
+
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        .tab-btn {
+            background: var(--surface); border: 1px solid var(--glass-border); color: var(--text-muted);
+            padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .tab-btn.active { color: #fff; background: linear-gradient(135deg, var(--primary), #059669); border-color: transparent; }
+
+        .tab-content {
+            display: none; background: var(--surface); backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px;
+        }
+        .tab-content.active { display: block; }
+        .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+        
+        .concept-card {
+            background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 12px;
+            padding: 25px; margin-bottom: 25px; border-left: 4px solid var(--primary);
+        }
+        .concept-card h3 { font-size: 1.4rem; color: #fff; margin-bottom: 10px; }
+        .concept-card p { color: #cbd5e1; margin-bottom: 15px; }
+
+        .analogy {
+            background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--primary);
+            padding: 15px; border-radius: 0 8px 8px 0; font-style: italic; color: #a7f3d0; margin-bottom: 15px;
+        }
+
+        .qa-accordion { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+        .qa-item { background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; }
+        .qa-item summary {
+            padding: 18px 20px; cursor: pointer; font-weight: 600; font-size: 1.1rem; list-style: none;
+            display: flex; justify-content: space-between; align-items: center; user-select: none;
+        }
+        .qa-item summary::-webkit-details-marker { display: none; }
+        .qa-item summary:hover { background: rgba(255,255,255,0.05); }
+        .qa-item[open] summary { border-bottom: 1px solid var(--glass-border); background: rgba(16, 185, 129, 0.1); }
+        
+        .answer-content { padding: 20px; color: #cbd5e1; font-size: 1rem; line-height: 1.7; }
+        
+        .highlight { color: #34d399; font-weight: 600; }
+        code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; color: #e2e8f0; font-size: 0.9em; }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.5rem; }
+            .tabs { flex-direction: column; align-items: stretch; }
+            .tab-btn { text-align: center; }
+            .tab-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+    
+    <div class="container">
+        <header>
+            <h1>System Design <span>Primer</span></h1>
+            <p>From QA to Architect: A Beginner's Guide for Toyota Financial Services</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('basics')">1. The Big Picture</button>
+            <button class="tab-btn" onclick="openTab('data')">2. Data & Databases</button>
+            <button class="tab-btn" onclick="openTab('scale')">3. Scaling & Speed</button>
+            <button class="tab-btn" onclick="openTab('fintech')">4. FinTech Rules (Crucial)</button>
+            <button class="tab-btn" onclick="openTab('interviews')">5. Interview Questions</button>
+        </div>
+
+        <!-- ==================== TAB 1: BASICS ==================== -->
+        <div class="tab-content active" id="basics">
+            <h2 class="section-title">The Big Picture: What is System Design?</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">System Design is not about writing code. It is about drawing the architecture of how computers talk to each other so the app doesn't crash when 1 million users log in.</p>
+            
+            <div class="concept-card">
+                <h3>The Client-Server Model</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> The Client is a customer sitting at a table looking at a menu (Web Browser, Mobile App). The Server is the kitchen (Backend). The API is the waiter who takes the order from the table to the kitchen.
+                </div>
+                <p>System Design interviews usually focus entirely on designing the "Kitchen". How many chefs do we need? Where do we store the ingredients? What happens if the kitchen catches on fire?</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Load Balancers</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> Imagine a busy Toyota dealership. If there is only one receptionist, the line goes out the door. A Load Balancer is a Traffic Cop standing at the door, directing incoming customers evenly to 10 different receptionists.
+                </div>
+                <p>When millions of users visit ToyotaFinancial.com, one server (computer) cannot handle it. We buy 10 servers. The <span class="highlight">Load Balancer</span> sits in front of them and routes incoming API requests to whichever server is currently the least busy.</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>API Gateway</h3>
+                <p>An API Gateway is the single entry point for all mobile and web clients. Instead of the mobile app trying to memorize the IP addresses of 50 different microservices (Payment, User, Notification), it just talks to the API Gateway. The Gateway handles routing, security/authentication (verifying passwords), and rate limiting (stopping DDoS attacks).</p>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: DATA & DATABASES ==================== -->
+        <div class="tab-content" id="data">
+            <h2 class="section-title">Data & Databases</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">For a financial company like TFS, how you store data is the most important decision you will make in a system design interview.</p>
+            
+            <div class="concept-card">
+                <h3>SQL (Relational Databases)</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> SQL is an Excel Spreadsheet. It has strict columns (ID, Name, Balance) and rules. You cannot put a word in a column meant for a number.
+                </div>
+                <p><strong>Examples:</strong> MySQL, PostgreSQL, Oracle.<br>
+                <strong>When to use:</strong> Financial transactions, billing, user accounts. Why? Because SQL guarantees <span class="highlight">ACID properties</span> (meaning data is never partially saved or corrupted during a crash). TFS uses SQL heavily for core banking features.</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>NoSQL (Non-Relational Databases)</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> NoSQL is a folder full of Word documents. Each document can look completely different. It's incredibly fast to just throw documents into a folder.
+                </div>
+                <p><strong>Examples:</strong> MongoDB, DynamoDB, Cassandra.<br>
+                <strong>When to use:</strong> User activity logs, social media feeds, shopping carts. Why? It scales infinitely and is extremely fast. However, it only guarantees "Eventual Consistency" (meaning if you update a value, it might take a few milliseconds for everyone in the world to see the update). You do <strong>not</strong> use NoSQL for moving money!</p>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: SCALING & SPEED ==================== -->
+        <div class="tab-content" id="scale">
+            <h2 class="section-title">Scaling & Speed</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">How do we make our system survive Black Friday or a massive Toyota sales event?</p>
+            
+            <div class="concept-card">
+                <h3>Horizontal vs. Vertical Scaling</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> You run a delivery business. Your truck is full. <strong>Vertical Scaling:</strong> You buy a bigger, more expensive truck. Eventually, no truck is big enough. <strong>Horizontal Scaling:</strong> You buy 10 normal-sized trucks and hire 10 drivers.
+                </div>
+                <p>In System Design, you always want to scale <strong>Horizontally</strong>. It's cheaper to buy 100 small EC2 servers on AWS than to try and build one massive supercomputer.</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Caching (Redis / Memcached)</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> If a customer asks the Chef for the Soup of the Day, the Chef has to look it up in the recipe book (the Database). If 10,000 customers ask for the Soup of the Day, looking at the book 10,000 times is slow. A Cache is a whiteboard next to the Chef. The Chef writes "Soup: Tomato" on the whiteboard. Now, answering the question is instant!
+                </div>
+                <p>Databases are slow because they read from hard drives. Caches (like Redis) store data in RAM (Memory), which is lightning fast. We cache things that are read frequently but change rarely (e.g., User Profile details, Loan Interest Rates).</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>Message Queues (Asynchronous Processing)</h3>
+                <div class="analogy">
+                    <strong>Analogy:</strong> At a busy Starbucks, the cashier doesn't make your coffee. They take your order, write it on a cup, and put it in a line (a Queue). The Barista picks up cups from the line when they are ready. You are free to step aside and wait.
+                </div>
+                <p>If processing a payment and sending an email receipt takes 5 seconds, the user will stare at a loading spinner for 5 seconds. Instead, we use a Message Queue (like <strong>Kafka</strong> or <strong>RabbitMQ</strong>). The Payment Service successfully processes the payment in 0.1 seconds, drops a message in the Queue saying "Send an email to John!", and tells the user "Success!". A separate Notification Service picks up the message 2 seconds later and sends the email in the background.</p>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: FINTECH RULES ==================== -->
+        <div class="tab-content" id="fintech">
+            <h2 class="section-title">FinTech Rules (Crucial for TFS)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">If you bring these concepts up during your system design interview, the interviewers will instantly know you understand financial systems.</p>
+            
+            <div class="concept-card">
+                <h3>1. ACID Properties</h3>
+                <p>A set of rules SQL databases follow to guarantee data safety.</p>
+                <ul>
+                    <li><strong>Atomicity:</strong> "All or Nothing." If you transfer $100 from Account A to Account B, both the deduction and the addition must succeed. If the server crashes in the middle, the whole transaction is undone (rolled back).</li>
+                    <li><strong>Consistency:</strong> The database must go from one valid state to another valid state.</li>
+                    <li><strong>Isolation:</strong> If 100 people try to read/write to the same account at the exact same millisecond, the database handles them one by one invisibly so they don't corrupt the balance.</li>
+                    <li><strong>Durability:</strong> Once the database says "Saved", it is saved forever, even if someone immediately pulls the power cord.</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h3>2. Idempotency</h3>
+                <p>We covered this in the other guide, but it is vital for System Design. Your APIs MUST be designed so that if a mobile app loses internet and retries a payment request 5 times, your system recognizes the unique `Idempotency-Key` and only processes the payment exactly once.</p>
+            </div>
+
+            <div class="concept-card">
+                <h3>3. The SAGA Pattern (Distributed Transactions)</h3>
+                <div class="analogy">
+                    <strong>The Problem:</strong> In a monolith, you use ACID. But in Microservices, the Payment Service has its own Database, and the Auto Loan Service has its own Database. You cannot lock two different databases at the same time easily.
+                </div>
+                <p><strong>The Solution: SAGA.</strong><br>
+                Instead of one giant transaction, it's a sequence of local transactions. <br>
+                1. Payment Service deducts $500 from bank (Success). It drops a message in Kafka. <br>
+                2. Auto Loan Service reads message, tries to credit the loan, but the Loan Account is frozen (Fails). <br>
+                3. Auto Loan Service drops a "Failure" message in Kafka.<br>
+                4. Payment Service reads the failure message and executes a <strong>Compensating Transaction</strong> (it refunds the $500 back to the bank). <br>
+                This ensures financial consistency across microservices.</p>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 5: INTERVIEW QUESTIONS ==================== -->
+        <div class="tab-content" id="interviews">
+            <h2 class="section-title">Practice Interview Questions</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">How to structure your answer: 1. Clarify Requirements -> 2. Estimate Scale -> 3. High Level Design (Boxes and arrows) -> 4. Deep Dive (Database schema, APIs) -> 5. Bottlenecks.</p>
+            
+            <div class="qa-accordion">
+                <details class="qa-item">
+                    <summary>Design a Payment Processing System (Like TFS)</summary>
+                    <div class="answer-content">
+                        <strong>1. Requirements:</strong> Process payments from users for their auto loans. Must be 100% accurate, highly available, and prevent duplicate charges.<br><br>
+                        <strong>2. High Level Design:</strong><br>
+                        - Client -> API Gateway -> Load Balancer -> Payment Microservice.<br>
+                        - Payment Microservice talks to a <strong>SQL Database</strong> (PostgreSQL) for ACID guarantees.<br>
+                        - Uses <strong>Kafka</strong> to send asynchronous messages to the Notification Service (for emails) and the Ledger Service (for accounting).<br><br>
+                        <strong>3. Deep Dive / FinTech specific:</strong><br>
+                        - <strong>Idempotency:</strong> API Gateway checks the `Idempotency-Key` in Redis. If it exists, block the request. If not, pass to service and save key in Redis.<br>
+                        - <strong>Reconciliation:</strong> A nightly cron job that compares our internal database records with the Bank's API to ensure every penny matches perfectly.
+                    </div>
+                </details>
+
+                <details class="qa-item">
+                    <summary>How would you handle a massive spike in traffic (e.g. End of Month billing)?</summary>
+                    <div class="answer-content">
+                        <strong>Answer Structure:</strong><br>
+                        1. <strong>Horizontal Scaling:</strong> I would put the Payment Services in an AWS Auto Scaling Group. When CPU hits 70%, it spins up more servers automatically.<br>
+                        2. <strong>Caching:</strong> I would cache read-heavy data (like user profiles and loan terms) in Redis to take the load off the database.<br>
+                        3. <strong>Database Scaling:</strong> I would use Read Replicas. One primary database handles all the "Writes" (saving payments), and 5 replica databases handle all the "Reads" (users just looking at their dashboard).<br>
+                        4. <strong>Queueing:</strong> Instead of processing non-critical tasks immediately, I would push them to a message queue (SQS/Kafka) to be processed slowly in the background when traffic dies down.
+                    </div>
+                </details>
+
+                <details class="qa-item">
+                    <summary>When would you choose Synchronous vs Asynchronous communication between microservices?</summary>
+                    <div class="answer-content">
+                        <strong>Synchronous (REST API / gRPC):</strong><br>
+                        - <em>When to use:</em> When the client <strong>needs</strong> an immediate response to proceed. For example, validating a user's password during login, or fetching their current account balance.<br>
+                        - <em>System Design Impact:</em> It creates tight coupling. If the Account Service is down, the Login Service fails. It also requires the caller to hold open a network thread while waiting.<br><br>
+                        <strong>Asynchronous (Message Queues like Kafka/RabbitMQ):</strong><br>
+                        - <em>When to use:</em> When the workflow can be processed in the background. For example, sending a payment confirmation email, or generating a monthly PDF statement.<br>
+                        - <em>System Design Impact:</em> It creates high resiliency. The Payment Service drops an "Email Message" into Kafka and immediately tells the user "Payment Success!" without waiting for the email to actually send. If the Email Service is down, the message waits safely in Kafka until the service recovers.
+                    </div>
+                </details>
+
+                <details class="qa-item">
+                    <summary>What is your strategy for managing the source code of 50 different microservices?</summary>
+                    <div class="answer-content">
+                        <strong>Monorepo Strategy:</strong><br>
+                        - <em>What it is:</em> All 50 microservices (Payment, Billing, Notification) are stored in one single, massive Git repository.<br>
+                        - <em>System Design Impact:</em> It is incredibly easy to share common code (like a custom Security Library) across all services. When you update an API contract, you can update all callers in the exact same Pull Request. However, it requires significant DevOps investment (like Bazel) to ensure that changing one service doesn't trigger a CI/CD build for all 50 services.<br><br>
+                        <strong>Polyrepo (Multi-repo) Strategy:</strong><br>
+                        - <em>What it is:</em> Every single microservice has its own independent Git repository.<br>
+                        - <em>System Design Impact:</em> Teams are completely isolated and autonomous. The Notification team can merge code and deploy without ever looking at the Payment team's code. However, sharing code is difficult (you have to publish internal NPM/Maven packages), and coordinating breaking API changes across multiple repositories is an organizational nightmare.
+                    </div>
+                </details>
+
+                <details class="qa-item">
+                    <summary>Design a Notification System (Emails/SMS for missed payments)</summary>
+                    <div class="answer-content">
+                        <strong>High Level Design:</strong><br>
+                        - Other services (Payment Service, Billing Service) publish events to an <strong>Apache Kafka</strong> topic (e.g., `payment_failed_topic`).<br>
+                        - The Notification Service consumes these messages.<br>
+                        - It checks User Preferences in a NoSQL database (MongoDB) to see if the user prefers Email or SMS.<br>
+                        - It connects to 3rd party APIs (Twilio for SMS, SendGrid for Email).<br><br>
+                        <strong>Handling Failures:</strong> If Twilio is down, we don't throw away the message. We put it in a <strong>Dead Letter Queue (DLQ)</strong> and a retry-mechanism attempts to resend it every 15 minutes with exponential backoff.
+                    </div>
+                </details>
+
+                <!-- Senior/Advanced Level System Design -->
+                <details class="qa-item">
+                    <summary>Design a Rate Limiter for an API Gateway (Senior)</summary>
+                    <div class="answer-content">
+                        <strong>Requirements:</strong> Limit a user to 100 requests per minute to prevent API abuse.<br><br>
+                        <strong>Algorithms:</strong><br>
+                        - <em>Token Bucket:</em> Best for burst traffic. A bucket has 100 tokens. Every request costs 1 token. A background process adds tokens at a fixed rate.<br>
+                        - <em>Sliding Window Log:</em> Keeps track of exact timestamps of every request in Redis. Highly accurate but consumes a lot of memory.<br><br>
+                        <strong>Architecture:</strong> Store the rate limit counters in <strong>Redis</strong> (because it's insanely fast and in-memory). The API Gateway checks Redis before forwarding the request. If the limit is exceeded, return `HTTP 429 Too Many Requests`.
+                    </div>
+                </details>
+
+                <details class="qa-item">
+                    <summary>Design a Distributed Unique ID Generator (Senior)</summary>
+                    <div class="answer-content">
+                        <strong>Problem:</strong> In a multi-region microservice architecture, how do you generate a unique, sortable `payment_id` without two servers accidentally picking the same ID? (A central database with AUTO_INCREMENT creates a massive bottleneck).<br><br>
+                        <strong>Solution (Twitter Snowflake):</strong> Generate a 64-bit integer locally on the application server.<br>
+                        - <em>Bit 1:</em> Sign bit (always 0).<br>
+                        - <em>Bits 2-42:</em> Timestamp in milliseconds (ensures IDs are sortable by time).<br>
+                        - <em>Bits 43-52:</em> Datacenter & Machine ID (ensures different servers don't generate the same ID).<br>
+                        - <em>Bits 53-64:</em> Sequence number (increments if the same machine generates multiple IDs in the exact same millisecond).
+                    </div>
+                </details>
+
+                <details class="qa-item">
+                    <summary>Design a Highly-Available Financial Ledger System (Senior)</summary>
+                    <div class="answer-content">
+                        <strong>Requirements:</strong> Record every single financial movement (credits/debits). Cannot lose data. Must be fully auditable for compliance.<br><br>
+                        <strong>Architecture (Event Sourcing):</strong><br>
+                        - Never just update a `balance` column (e.g., `UPDATE accounts SET balance = 50`). Instead, treat the ledger as an <strong>Append-Only Immutable Log</strong>.<br>
+                        - Every transaction (+$500, -$20) is inserted as a brand new row. The current balance is derived by summing up all the rows.<br>
+                        - <strong>Double-Entry Accounting:</strong> For every credit, there must be a matching debit in another account. The sum of the entire system must always equal zero.<br>
+                        - <strong>Database:</strong> Use a relational database (PostgreSQL) with strict ACID transactions for the source of truth. Use Kafka to asynchronously broadcast balance changes to an Elasticsearch cluster so internal business teams can run complex searches without putting analytical load on the primary Postgres database.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

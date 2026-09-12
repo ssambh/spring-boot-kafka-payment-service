@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- This is the "Parent POM". It acts like a master template. Spring Boot uses this to manage the versions of ALL other libraries so we don't have to guess which versions work well together. -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.4</version>
+        <relativePath/> 
+    </parent>
+    
+    <!-- This section defines OUR project. The groupId is like our company name, the artifactId is the name of our specific app. -->
+    <groupId>com.tfs.training</groupId>
+    <artifactId>payment-service</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>payment-service</name>
+    <description>Payment Service for Auto Loans</description>
+
+    <properties>
+        <!-- We are telling Maven to compile our code using Java 17 features -->
+        <java.version>17</java.version>
+    </properties>
+
+    <!-- This is the shopping list of tools (dependencies) our application needs to run. -->
+    <dependencies>
+        
+        <!-- 1. SPRING WEB: This allows our app to talk to the internet. It lets us create web addresses (URLs) that users can visit or send data to. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 2. SPRING DATA JPA: This is a translator between Java and a Database. Instead of writing messy SQL code, we can just save Java objects and this tool translates it to database language. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- 3. VALIDATION: This acts like a bouncer at a club. It checks the data people send us (like making sure a payment amount isn't a negative number) before letting it into our app. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- 4. H2 DATABASE: A tiny, fake database that lives entirely in our computer's memory. It forgets everything when we turn off the app, but it's perfect for practicing because it requires zero setup. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 5. LOMBOK: A helpful robot that writes boring, repetitive Java code for us (like Getters and Setters) invisibly in the background. -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 6. ACTUATOR: This provides built-in endpoints (like /actuator/health) to let us monitor the app's health and metrics in production. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+<!-- Spring Kafka -->
+<dependency>
+<groupId>org.springframework.kafka</groupId>
+<artifactId>spring-kafka</artifactId>
+</dependency>
+
+    </dependencies>
+
+    <!-- This section tells Maven how to package our final app into a single, runnable file (a JAR file). -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
