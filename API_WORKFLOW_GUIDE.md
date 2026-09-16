@@ -115,3 +115,82 @@ sequenceDiagram
 3. **The Database Query:** The Repository executes a `SELECT * FROM payments WHERE id = 1` query against the database.
 4. **The Error Handling:** If the database says "I don't have that", the Service throws a `PaymentNotFoundException`. The `GlobalExceptionHandler` catches this and politely returns a `404 Not Found`.
 5. **The Success:** If the database finds it, the Service maps the Entity to a clean `PaymentResponse` DTO and the Controller returns it with a `200 OK` status code.
+
+---
+
+## 3. The API Gateway Workflow (The Front Door Bouncer)
+
+In an enterprise environment, clients do not talk directly to the `payment-service`. They talk to the **API Gateway** on port 9000, which routes traffic and protects the internal network.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Hacker
+    participant Gateway as API Gateway
+    participant Redis as Redis (Rate Limiter)
+    participant Payment as Payment Service
+
+    Hacker->>Gateway: POST /api/v1/payments (Spamming 100x/sec)
+    
+    Gateway->>Redis: Check IP Token Bucket
+    
+    alt Tokens Available (First 2 requests)
+        Redis-->>Gateway: Allow
+        Gateway->>Payment: Route Request
+        Payment-->>Gateway: 201 Created
+        Gateway-->>Hacker: 201 Created
+    else Tokens Empty (Next 98 requests)
+        Redis-->>Gateway: Deny
+        Gateway-->>Hacker: Returns 429 Too Many Requests
+    end
+```
+
+### Detailed Breakdown (API Gateway):
+1. **Centralized Protection:** By putting a Redis-backed Rate Limiter in the Gateway, malicious traffic is blocked *before* it ever touches our actual Java microservices.
+2. **Routing:** If the request is safe, the Gateway acts as a reverse proxy, forwarding it to `localhost:8080` (Payment Service) or `localhost:8081` (Loan Service).
+
+---
+
+## 4. The Event-Driven Workflow (Asynchronous Communication)
+
+When a payment is successfully saved, the Payment Service doesn't call the Loan Service via a synchronous REST API (which could crash if the Loan Service is down). Instead, it fires an **Event** into Kafka.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Payment as Payment Service (Producer)
+    participant Kafka as Kafka Broker
+    participant Loan as Loan Service (Consumer)
+    participant DB as Loan Database
+    participant DLQ as Dead Letter Queue (DLT)
+
+    Payment->>Kafka: Publish PaymentProcessedEvent
+    Note right of Payment: "Fire and Forget"
+    
+    Kafka-->>Loan: Push Event to Listener
+    
+    rect rgb(240, 220, 200)
+    Note over Loan, DB: 1. Process Event
+    Loan->>DB: update balance (Optimistic Locking)
+    end
+    
+    alt Success
+        DB-->>Loan: version updated
+        Loan-->>Kafka: Commit Offset (Done!)
+    else Concurrency Conflict / Missing Loan
+        DB-->>Loan: Throws OptimisticLockingFailureException
+        
+        rect rgb(255, 200, 200)
+        Note over Loan, Kafka: 2. Retry & DLQ Mechanism
+        Loan->>Loan: Wait 1 second (FixedBackOff)
+        Loan->>Loan: Retry up to 3 times
+        Loan-->>DLQ: Publish to .DLT topic
+        end
+    end
+```
+
+### Detailed Breakdown (Kafka & DLQ):
+1. **Fire and Forget:** The Payment Service serializes the event to JSON and publishes it to the `payment-completed-topic`. Its job is done.
+2. **The Consumer:** The Loan Service constantly listens. When it receives the event, it attempts to update the database. 
+3. **Optimistic Locking:** If two events hit the same account simultaneously, the database's `@Version` column prevents an overwrite, throwing a conflict exception.
+4. **Dead Letter Queue (DLQ):** Because we configured a `DefaultErrorHandler`, the Loan Service catches the exception, retries 3 times, and if it still fails, permanently routes the message to the Dead Letter Queue for manual human review. **Zero data loss.**

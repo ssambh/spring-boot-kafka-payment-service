@@ -294,6 +294,31 @@
                     When Spring Boot starts up, it creates the <code>LoanService</code> bean. As soon as the bean is fully constructed and its dependencies (like the Repository) are injected, Spring looks for any method inside that class annotated with <code>@PostConstruct</code>. It executes that method exactly once.<br><br>
                     Inside our <code>@PostConstruct</code> method, we wrote Java code that says: <em>"If the database is empty, create a new Loan Entity for John Doe and save it to the H2 database."</em> Because this runs every single time the application boots up, our in-memory database always starts with our dummy data perfectly intact!
                 </div></details>
+                <details class="qa-item"><summary>25i. Why do we have minimalist code in the Repository (it's just an interface), and how does it work without any SQL? <span class="priority high">High</span></summary><div class="answer-content">
+                    This is the magic of <strong>Spring Data JPA</strong>. In our project, <code>PaymentRepository</code> is just an <code>interface</code> that extends <code>JpaRepository</code>. We didn't write any actual class implementing it, and we didn't write a single SQL query!<br><br>
+                    <strong>How it works:</strong><br>
+                    1. <strong>Proxy Generation:</strong> When Spring Boot starts up, it scans your code, sees that interface, and uses something called the <em>Java Proxy Pattern</em> to generate a concrete implementation class completely behind the scenes (in memory).<br>
+                    2. <strong>Built-in Methods:</strong> Because we extended <code>JpaRepository</code>, Spring automatically injects the code for standard CRUD operations (Create, Read, Update, Delete) like <code>save()</code>, <code>findById()</code>, and <code>findAll()</code>. It translates these method calls into highly optimized SQL using Hibernate.<br>
+                    3. <strong>Query Derivation:</strong> Spring Data JPA is so smart that you can just declare a method signature like <code>findByCustomerName(String name)</code> in your interface, and Spring will literally parse the English words in the method name and generate the exact SQL query (<code>SELECT * FROM payments WHERE customer_name = ?</code>) at runtime. No JDBC templates or <code>try-catch</code> blocks required!
+                </div></details>
+                <details class="qa-item"><summary>25j. What is the difference between an Entity and a Repository, and why do we need both? <span class="priority high">High</span></summary><div class="answer-content">
+                    Think of a library: The <strong>Entity</strong> is the <em>Book</em>, and the <strong>Repository</strong> is the <em>Librarian</em>.<br><br>
+                    <strong>The Entity (The Noun / The Data):</strong><br>
+                    An Entity is just a container holding data. It maps exactly to a row in a database table. For example, our <code>Payment.java</code> Entity just holds variables like <code>amount</code> and <code>accountNumber</code>. It is completely "dumb"—it has no idea how to save itself to the database.<br><br>
+                    <strong>The Repository (The Verb / The Manager):</strong><br>
+                    The Repository is the active worker that communicates with the database. It contains the actions (SQL queries) to move data between Java memory and the actual database on your hard drive. <br><br>
+                    <strong>Why we need both:</strong><br>
+                    You can't have a library without books (Entities), but books can't organize themselves onto the shelves. You need the Librarian (Repository) to take the book (<code>repository.save(entity)</code>) and physically place it on the database shelf. Separating the "data" from the "actions" keeps the code clean and follows the Single Responsibility Principle.
+                </div></details>
+                <details class="qa-item"><summary>25k. How does the Repository interface know which Entity to connect with? <span class="priority high">High</span></summary><div class="answer-content">
+                    It knows through the magic of <strong>Java Generics</strong> (the angle brackets <code>&lt; &gt;</code>)!<br><br>
+                    When you create a repository, you write: <br>
+                    <code>public interface PaymentRepository extends JpaRepository&lt;Payment, Long&gt;</code><br><br>
+                    Those two parameters inside the brackets tell Spring Data JPA exactly what to do:<br>
+                    1. <strong><code>Payment</code></strong>: This tells the Librarian (Repository) exactly which type of Book (Entity) it is managing. It tells Spring, "Every time I call <code>findAll()</code>, return a List of <code>Payment</code> objects, and look at the <code>payments</code> database table."<br>
+                    2. <strong><code>Long</code></strong>: This tells the Repository the data type of the Primary Key (<code>@Id</code>) for that Entity. It tells Spring, "When I call <code>findById(5L)</code>, expect a Long integer."<br><br>
+                    Without those generics, Spring would have no idea which database table to query or what Java object to return!
+                </div></details>
                 
                 <!-- Senior/Advanced Level (26-30) -->
                 <details class="qa-item"><summary>26. How does Spring handle Circular Dependencies? <span class="priority high">Senior</span></summary><div class="answer-content">If A depends on B, and B depends on A, constructor injection fails immediately. With setter injection, Spring uses a three-tier cache (singletonObjects, earlySingletonObjects, singletonFactories) to resolve it. However, it's a design smell and should be fixed via redesign.</div></details>
@@ -319,6 +344,21 @@
                     In a Monolith, yes, they all share one giant database. But in a <strong>Microservices Architecture</strong>, the golden rule is <strong>Database-per-Service</strong>. <code>Payment Service</code> has its own isolated database, and <code>Loan Service</code> has its own isolated database. They cannot directly query each other's databases via SQL. They <em>must</em> communicate via APIs or Events (like Kafka). This prevents tight coupling and single points of failure.
                 </div></details>
                 <details class="qa-item"><summary>2. What is Idempotency? <span class="priority high">High</span></summary><div class="answer-content">Making a request multiple times has the same outcome as making it once. Essential in payments (e.g., retrying a failed network call shouldn't charge the user twice). Achieved using unique `Idempotency-Key` headers.<div class="study-material"><strong>Study Material:</strong> Stripe API Docs on Idempotency.</div></div></details>
+                <details class="qa-item"><summary>2b. What is the exact difference between an Idempotency Key and Optimistic Locking? Don't they both prevent duplicates? <span class="priority high">High</span></summary><div class="answer-content">
+                    They solve two completely different problems!<br><br>
+                    <strong>1. Idempotency Key (Prevents Duplicate <em>Intent</em>)</strong><br>
+                    - <em>Scenario:</em> A user clicks "Pay $500" twice by accident because their wifi lagged.<br>
+                    - <em>How it works:</em> Both clicks send the exact same <code>Idempotency-Key: TXN-001</code> to the API. The API says, "I already processed TXN-001!" and rejects the second request entirely. It stops identical duplicate requests from ever executing.<br><br>
+                    <strong>2. Optimistic Locking (Prevents Concurrent <em>Data Overwriting</em>)</strong><br>
+                    - <em>Scenario:</em> A user makes a $500 payment from their laptop (TXN-001). At the exact same millisecond, their spouse makes a $300 payment from their phone (TXN-002). Both are totally valid, distinct transactions (different keys!).<br>
+                    - <em>The Danger:</em> If they hit the database at the exact same millisecond, Thread A reads a $15k balance. Thread B reads a $15k balance. Thread A calculates 15k - 500 = 14.5k and saves it. Thread B calculates 15k - 300 = 14.7k and saves it. The final balance in the database is 14.7k. The $500 payment just vanished into thin air because Thread B overwrote Thread A!<br>
+                    - <em>How it works:</em> With Optimistic Locking (<code>@Version</code>), Thread A saves the balance and changes the version from 0 to 1. When Thread B tries to save, it says "Save where version = 0", but the version is now 1! It throws a <code>Conflict Exception</code>, allowing the system to retry, re-read the <em>new</em> 14.5k balance, and correctly calculate 14.5k - 300 = 14.2k.
+                </div></details>
+                <details class="qa-item"><summary>2c. Why did we implement Optimistic Locking in the Loan Service, but NOT in the Payment Service? <span class="priority high">High</span></summary><div class="answer-content">
+                    Because Optimistic Locking is only needed when you are <strong>Updating (Mutating)</strong> an existing row in a database!<br><br>
+                    In the <strong>Loan Service</strong>, we are taking a single existing row (John Doe's loan) and constantly modifying its `outstandingBalance` column. Multiple threads trying to modify the exact same row at the exact same time causes race conditions and overwrites.<br><br>
+                    In the <strong>Payment Service</strong>, we never update existing rows! Every time a payment is made, we are simply <strong>Inserting (Appending)</strong> a brand new row into the database (<code>INSERT INTO payments...</code>). The $500 payment gets Row ID 1, and the $300 payment gets Row ID 2. Because they are writing to completely different, brand new rows, they can never overwrite each other. Therefore, no locking is needed!
+                </div></details>
                 <details class="qa-item"><summary>3. Synchronous vs Asynchronous Services/Calls? <span class="priority high">High</span></summary><div class="answer-content">
                     <strong>Synchronous (REST, gRPC):</strong> The caller sends a request and <em>blocks</em> (waits) until the receiver sends a response. <br>
                     <em>Pros:</em> Easy to implement, immediate feedback (success/fail). <br>
@@ -384,6 +424,13 @@
                     By default, when Spring Kafka serializes a Java object into JSON to send to a Topic, it attaches a hidden header called <code>__TypeId__</code>. This header contains the <em>exact package name</em> of the Producer's class (e.g., <code>com.tfs.paymentservice.dto.Event</code>).<br><br>
                     When the Consumer microservice receives the JSON, Spring tries to look for that exact same package name to deserialize it. But because microservices are totally separate applications, the Consumer's DTO usually lives in a different package (e.g., <code>com.tfs.loanservice.dto.Event</code>). This causes a <code>ClassNotFoundException</code>, and the message fails to process!<br><br>
                     <strong>The Fix:</strong> In the Consumer's <code>application.properties</code>, you must configure the deserializer to ignore the type headers (<code>use.type.headers=false</code>) and define a default type mapping (<code>value.default.type=com...loanservice.dto.Event</code>) so it maps the raw JSON directly to its own local class.
+                </div></details>
+                <details class="qa-item"><summary>25g. Is Rate Limiter code generally written inside every Spring Boot microservice? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>No!</strong> Rate limiting is almost <em>never</em> written inside individual microservices (like <code>payment-service</code> or <code>loan-service</code>). <br><br>
+                    <strong>Why?</strong><br>
+                    1. <strong>Block them at the Front Door:</strong> If a hacker launches a DDoS attack and you put the rate limiter in the <code>payment-service</code>, the malicious traffic has already entered your internal network, consuming bandwidth and database connections. <br>
+                    2. <strong>Centralized Protection:</strong> By putting the Rate Limiter specifically in the <strong>API Gateway</strong> (or at an even higher infrastructure level like AWS WAF or Cloudflare), you centrally protect <em>all</em> 500 of your internal microservices at the exact same time with just a few lines of code.<br><br>
+                    That is why we wrote our Redis Rate Limiter code inside the <code>api-gateway</code> repository, rather than touching our actual business microservices!
                 </div></details>
                 
                 <!-- Senior/Advanced Level (26-30) -->
