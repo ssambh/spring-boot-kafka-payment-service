@@ -223,6 +223,15 @@
                 <details class="qa-item"><summary>23. @Primary vs @Qualifier? <span class="priority low">Low</span></summary><div class="answer-content">`@Primary` designates a default bean when multiple exist. `@Qualifier` overrides it by explicitly naming the required bean.</div></details>
                 <details class="qa-item"><summary>24. N+1 Select Problem in Hibernate? <span class="priority low">Low</span></summary><div class="answer-content">When loading a list of entities (1 query) causes lazy loading of their relationships for each entity (N queries). Solved using `JOIN FETCH`.</div></details>
                 <details class="qa-item"><summary>25. What is a REST API? <span class="priority low">Low</span></summary><div class="answer-content">Representational State Transfer. An architectural style using HTTP methods (GET, POST, PUT, DELETE) to manipulate stateless resources represented via URLs.</div></details>
+                <details class="qa-item"><summary>25a. Explain `ResponseEntity&lt;PaymentResponse&gt;` in the Controller. <span class="priority high">High</span></summary><div class="answer-content">
+                    <code>ResponseEntity</code> is a built-in Spring Boot class that represents the <em>entire</em> HTTP response sent back to the client (like Postman or a web browser).<br><br>
+                    <strong>An HTTP Response has three parts:</strong><br>
+                    1. <strong>Status Code:</strong> Like <code>200 OK</code> or <code>201 Created</code>.<br>
+                    2. <strong>Headers:</strong> Hidden metadata, like <code>Content-Type: application/json</code>.<br>
+                    3. <strong>Body:</strong> The actual data payload you want the user to see.<br><br>
+                    When we return <code>ResponseEntity.status(HttpStatus.CREATED).body(response)</code>, we are manually configuring all three of these parts. <br><br>
+                    The <code>&lt;PaymentResponse&gt;</code> part uses Java Generics. It tells Spring: "I promise that the <strong>Body</strong> of this response will strictly contain a <code>PaymentResponse</code> DTO object, and you should automatically convert that Java object into JSON before sending it over the network."
+                </div></details>
                 <details class="qa-item"><summary>25b. How and where is Dependency Injection happening in our specific project? <span class="priority med">Medium</span></summary><div class="answer-content">
                     In our code, Dependency Injection (DI) is happening everywhere via <strong>Constructor Injection</strong>, completely powered by Lombok's <code>@RequiredArgsConstructor</code>.<br><br>
                     <strong>Here are the exact places it is happening:</strong><br>
