@@ -260,6 +260,11 @@
                     5. The DispatcherServlet sees that our class has an <code>@ExceptionHandler(PaymentNotFoundException.class)</code> method. It uses Java Reflection to automatically inject the exception into our method, run our code, and take the resulting <code>ErrorResponse</code> to send to the client. <br><br>
                     We never explicitly call it because it acts as an <strong>Interceptor</strong> built into the very lifecycle of a Spring request!
                 </div></details>
+                <details class="qa-item"><summary>25c-3. If validation fails at @Valid in the Controller and never even reaches the Service, does it still go to the GlobalExceptionHandler? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>Yes, absolutely!</strong> This is the brilliance of the <code>@RestControllerAdvice</code> safety net.<br><br>
+                    When a client sends a JSON payload with invalid data (like a negative amount), the <code>@Valid</code> annotation intercepts it <em>before</em> the first line of your Controller method even executes. Because the data is invalid, Spring immediately aborts the request and throws a built-in exception called <code>MethodArgumentNotValidException</code>.<br><br>
+                    Because our <code>GlobalExceptionHandler</code> is watching the entire application, it catches this exception using the specific <code>@ExceptionHandler(MethodArgumentNotValidException.class)</code> method we wrote. It extracts all the specific field errors (e.g., "amount must be greater than 0"), packs them into our clean JSON <code>ErrorResponse</code>, and returns a <code>400 Bad Request</code>. The request never touches the Service layer, saving time and resources!
+                </div></details>
                 <details class="qa-item"><summary>25d. Explain the complete flow of a Spring Boot request, from Controller to Exception to Response DTO. <span class="priority high">High</span></summary><div class="answer-content">
                     <strong>Happy Path:</strong><br>
                     1. Client sends a request (JSON/URL).<br>
