@@ -446,6 +446,17 @@
                     2. <strong>Centralized Protection:</strong> By putting the Rate Limiter specifically in the <strong>API Gateway</strong> (or at an even higher infrastructure level like AWS WAF or Cloudflare), you centrally protect <em>all</em> 500 of your internal microservices at the exact same time with just a few lines of code.<br><br>
                     That is why we wrote our Redis Rate Limiter code inside the <code>api-gateway</code> repository, rather than touching our actual business microservices!
                 </div></details>
+                <details class="qa-item"><summary>25h. Did we implement JWT Token Authentication in our application? How would we? <span class="priority high">High</span></summary><div class="answer-content">
+                    <strong>No</strong>, our current API is completely open. Anyone who can reach <code>localhost:9000/api/v1/payments</code> can create a payment without logging in.<br><br>
+                    <strong>How to implement it in a Microservices Architecture:</strong><br>
+                    Just like the Rate Limiter, we would implement <strong>Global Authentication at the API Gateway</strong> using <code>Spring Security</code>.<br>
+                    1. The API Gateway acts as the single point of entry.<br>
+                    2. We add the <code>spring-boot-starter-oauth2-resource-server</code> dependency to the Gateway.<br>
+                    3. When a client sends an HTTP request, they must include an <code>Authorization: Bearer &lt;jwt-token&gt;</code> header.<br>
+                    4. The API Gateway cryptographically verifies the token's signature using a Public Key (usually provided by an Identity Provider like AWS Cognito, Auth0, or Keycloak).<br>
+                    5. If the token is fake or expired, the Gateway instantly returns a <code>401 Unauthorized</code> and blocks the request.<br>
+                    6. If the token is valid, the Gateway forwards the request to the internal <code>payment-service</code>. The internal microservices (which sit safely behind the Gateway's firewall) often do not need to re-validate the token, saving processing time!
+                </div></details>
                 
                 <!-- Senior/Advanced Level (26-30) -->
                 <details class="qa-item"><summary>26. Outbox Pattern? <span class="priority high">Senior</span></summary><div class="answer-content">Solves the "Dual Write" problem. Instead of saving to DB and sending a Kafka message (which can fail midway), you save the data AND an "Event" to a local DB `outbox` table in one ACID transaction. A background process (like Debezium) then reads the outbox and publishes to Kafka.</div></details>
