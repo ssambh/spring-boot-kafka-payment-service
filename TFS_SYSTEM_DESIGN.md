@@ -13,17 +13,17 @@ flowchart TD
     Client[Toyota Mobile App] -->|HTTPS POST| WAF[AWS WAF]
     WAF --> APIG[AWS API Gateway]
     
-    subgraph Amazon EKS (Kubernetes Cluster)
+    subgraph EKS ["Amazon EKS (Kubernetes Cluster)"]
         APIG -->|Validates JWT| PaymentSVC[Payment Service Pods]
         APIG --> LoanSVC[Loan Service Pods]
     end
     
-    subgraph Persistence Layer
+    subgraph Persistence ["Persistence Layer"]
         PaymentSVC -->|Save Payment| PayDB[(Payment RDS - PostgreSQL)]
         LoanSVC -->|Update Balance| LoanDB[(Loan RDS - PostgreSQL)]
     end
     
-    subgraph Event Streaming
+    subgraph Events ["Event Streaming"]
         PaymentSVC -->|Publish Event| MSK[Amazon MSK - Kafka]
         MSK -->|Consume Event| LoanSVC
     end
