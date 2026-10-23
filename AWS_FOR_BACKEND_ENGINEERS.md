@@ -151,6 +151,8 @@ The **managed front door** for your APIs. Replaces our local Spring Cloud Gatewa
 *   **Routes** `/api/v1/payments/**` → payment-service, `/api/v1/loans/**` → loan-service.
 *   **Why you care:** When a user reports a `401`, `403`, `429`, or `504 Gateway Timeout`, the API Gateway logs are the first place to check.
 
+> 📘 **Deep dive:** See [AWS_API_GATEWAY_DEEP_DIVE.md](./AWS_API_GATEWAY_DEEP_DIVE.md) for the full request lifecycle, JWT authorizers, API keys & usage plans, throttling, and a triage cheat sheet.
+
 ### 5.5 ALB (Application Load Balancer) — 🟡 Good to know
 Distributes HTTP traffic across your healthy pods. It calls your **health check endpoint** (e.g., Spring Boot Actuator's `/actuator/health`). If your app's health check fails, the ALB stops sending it traffic.
 
